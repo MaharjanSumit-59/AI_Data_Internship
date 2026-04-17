@@ -55,10 +55,109 @@ def factorial():
     except ValueError:
         print("Invalid input. Please enter a valid integer.")
 """
- 
+
+# Create a function that checks whether a number is prime or not.
+"""
+def check_prime():
+    try:
+        number = int(input("Enter a number: "))
+        if number <= 1:
+            print(f"{number} is not a prime number.")
+        else:
+            is_prime = True
+            for i in range(2, int(number**0.5) + 1): 
+                if number % i == 0:
+                    is_prime = False
+                    break
+
+            if is_prime:
+                print(f"{number} is a prime number.")
+            else:
+                print(f"{number} is not a prime number.")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer.")
+"""
+
+# Write a function that accepts a list and returns the sum of all elements.
+"""
+def sum_of_list():
+    numbers = []
+    try: 
+        n = int(input("Enter the number of elements in the list: "))
+        for i in range(n):
+            num = float(input(f"Enter element {i + 1}: "))
+            numbers.append(num)
+
+        total_sum = sum(numbers)
+        print(f"The sum of all elements in the list is: {total_sum}")
+    except ValueError:
+        print("Invalid input. Please enter valid numbers.")
+"""
+
+# Write a program that takes a list of numbers and prints only the even numbers.
+"""
+def print_even_numbers():
+    number = []
+    try:
+        n = int(input("Enter the number of elements in the list: "))
+        for i in range(n):
+            num = int(input(f"Enter element {i + 1}: "))
+            number.append(num)
+        
+        even_numbers = [num for num in number if num % 2 == 0] # num is the variable that represents each element in the list "number". The list comprehension iterates through each element in the list "number" and checks if it is even (num % 2 == 0). If it is even, it is included in the new list "even_numbers".
+        print(f"The even numbers in the list are: {even_numbers}")
+    except ValueError:
+        print("Invalid input. Please enter valid integers.")
+"""
+
+# Create a function that reverses a list without using built-in reverse methods.
+"""
+def reverse_list():
+    numbers = []
+    try:
+        n = int(input("Enter the number of elements in the list: "))
+        for i in range(n):
+            num = input(f"Enter element {i + 1}: ")
+            numbers.append(num)
+
+        reversed_list = []
+        for i in range(len(numbers) - 1, -1, -1): # This loop starts from the last index of the list (len(numbers) - 1) and goes down to the first index (0) in reverse order. The step -1 indicates that we want to decrement the index by 1 in each iteration, effectively iterating through the list backwards.
+            reversed_list.append(numbers[i])
+
+        print(f"The reversed list is: {reversed_list}")
+    except ValueError:
+        print("Invalid input. Please enter valid numbers.")
+"""
+
+# Write a program to find the second largest number in a list.
+"""
+def second_largest():
+    numbers = []
+    try:
+        n = int(input("Enter the number of elements in the list: "))
+        for i in range(n):
+            num = int(input(f"Enter element {i + 1}: "))
+            numbers.append(num)
+        
+        numbers.sort()
+        if len(numbers) < 2:
+            print("There should be at least two numbers in the list to find the second largest.")
+        else:
+            second_largest_number = numbers[-2] # The second largest number will be the second last element in the sorted list.
+            print(f"The second largest number in the list is: {second_largest_number}")
+    except ValueError:
+        print("Invalid input. Please enter valid integers.")
+"""
+
 if __name__ == "__main__":    
 
     # check_even_odd()
     # check_leap_year()
     # sum_of_numbers()
     # factorial()
+    # check_prime()
+    # sum_of_list()
+    # print_even_numbers()
+    # reverse_list()
+    # second_largest()
