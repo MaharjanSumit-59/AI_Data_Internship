@@ -219,7 +219,50 @@ def ask_for_number():
     except ValueError:
         print("Invalid input. Please enter a valid number instead of text.")
 """
-        
+   
+# Write a program that prints the Fibonacci sequence up to n terms.
+"""
+def fibonacci_sequence():
+    try:
+        n = int(input("Enter the number of terms for the Fibonacci sequence: "))
+        if n <= 0:
+            print("Please enter a positive integer.")
+        else:
+            a, b = 0, 1
+            sequence = []
+            for _ in range(n):
+                sequence.append(a)
+                a, b = b, a + b
+        print(f"The Fibonacci sequence up to {n} terms is: {sequence}") 
+    except ValueError:
+        print("Invalid input. Please enter a valid integer.")   
+"""
+# Create a function that removes duplicates from a list.
+"""
+def remove_duplicates():
+    numbers = []
+    try:
+        n = int(input("Enter the number of elements in the list: "))
+        for i in range(n):
+            num = input(f"Enter element {i + 1}: ")
+            numbers.append(num)
+        unique_numbers = list(set(numbers)) # The set() function is used to create a set from the list "numbers". A set is an unordered collection of unique elements, so it automatically removes any duplicate values. Then, we convert the set back to a list using the list() function to get a list of unique numbers.
+        print(f"The list with duplicates removed is: {unique_numbers}")
+    except ValueError:
+        print("Invalid input. Please enter valid numbers.")
+"""
+
+# Write a program that checks whether a string is a palindrome.
+"""
+def check_palindrome():
+    string = input("Enter a string: ")
+    cleaned_string = ''.join(string.split()).lower() # This line removes all whitespace from the input string and converts it to lowercase. The split() method splits the string into a list of words, and then join() concatenates those words back into a single string without any spaces. The lower() method converts all characters to lowercase, ensuring that the palindrome check is case-insensitive.
+    if cleaned_string == cleaned_string[::-1]: # This line checks if the cleaned string is equal to its reverse. The slicing syntax [::-1] creates a reversed version of the string. If the cleaned string is the same as its reverse, it means that the original string is a palindrome.
+        print(f"{string} is a palindrome.")
+    else:
+        print(f"{string} is not a palindrome.") 
+"""
+
 if __name__ == "__main__":    
 
     # check_even_odd()
@@ -236,3 +279,6 @@ if __name__ == "__main__":
     # copy_file()
     # division_by_zero()
     # ask_for_number()
+    # fibonacci_sequence()
+    # remove_duplicates()
+    # check_palindrome()
