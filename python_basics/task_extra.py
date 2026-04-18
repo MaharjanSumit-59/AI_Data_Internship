@@ -150,6 +150,54 @@ def second_largest():
         print("Invalid input. Please enter valid integers.")
 """
 
+# Write a program that writes user input to a file and then reads it back.
+"""
+def write_and_read_file():
+    try:
+        filename = input("Enter the filename: ")
+        content = input("Enter the content to write to the file: ")
+
+        with open(filename, 'w' ) as file: 
+            file.write(content)
+        print(f"Content written to {filename} successfully.")
+        with open(filename, 'r') as file:
+            read_content = file.read()
+        print(f"Content read from {filename}: {read_content}")
+    except FileNotFoundError:
+        print(f"File {filename} not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+"""
+# Create a program that counts the number of lines in a file.
+"""
+def count_lines_in_file():
+    try:
+        filename = input("Enter the filename: ")
+        with open(filename, 'r') as file:
+            lines = file.readlines()
+        line_count = len(lines)
+        print(f"The number of lines in {filename} is: {line_count}")
+    except FileNotFoundError:
+        print(f"File {filename} not found.")    
+"""            
+        
+# Write a program that copies the contents of one file to another file.
+"""
+def copy_file():
+    try:
+        source_filename = input("Enter the source filename: ")
+        destination_filename = input("Enter the destination filename: ")
+        with open(source_filename, 'r') as source_file:
+            content = source_file.read()
+        with open(destination_filename, 'w') as destination_file:
+            destination_file.write(content)
+        print(f"Content copied from {source_filename} to {destination_filename} successfully.")
+    except FileNotFoundError:
+        print(f"File {source_filename} not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+"""
+
 if __name__ == "__main__":    
 
     # check_even_odd()
@@ -161,3 +209,6 @@ if __name__ == "__main__":
     # print_even_numbers()
     # reverse_list()
     # second_largest()
+    # write_and_read_file()
+    # count_lines_in_file()
+    # copy_file()
