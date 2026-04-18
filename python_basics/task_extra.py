@@ -198,6 +198,28 @@ def copy_file():
         print(f"An error occurred: {e}")
 """
 
+# Write a program that handles division by zero using try-except.
+"""
+def division_by_zero():
+    try:
+        numerator = float(input("Enter the numerator: "))
+        denominator = float(input("Enter the denominator: "))
+        result = numerator / denominator
+        print(f"The result of {numerator} divided by {denominator} is: {result}")
+    except ZeroDivisionError:
+        print("Error: Division by zero is not allowed.")
+"""
+
+# Create a program that asks for a number and handles invalid input (like text instead of numbers).
+"""
+def ask_for_number():
+    try:
+        number = float(input("Enter a number: "))
+        print(f"You entered: {number}")
+    except ValueError:
+        print("Invalid input. Please enter a valid number instead of text.")
+"""
+        
 if __name__ == "__main__":    
 
     # check_even_odd()
@@ -212,3 +234,5 @@ if __name__ == "__main__":
     # write_and_read_file()
     # count_lines_in_file()
     # copy_file()
+    # division_by_zero()
+    # ask_for_number()
