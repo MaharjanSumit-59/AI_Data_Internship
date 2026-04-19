@@ -240,3 +240,44 @@ print(calc.add(5, 3, 2)) # Output: 10 (using the add method with three parameter
 
 print(calc.multiply(2,3,3,5)) # Output: 90 (using the multiply method with four parameters)
 """
+
+# Create an abstract class Vehicle with an abstract method start(). Implement it in subclasses like Car and Bike.
+"""
+from abc import ABC, abstractmethod
+
+class Vehicle(ABC):
+    @abstractmethod
+    def start(self):
+        pass
+class Car(Vehicle):
+    def start(self):
+        print("The car is starting with a key.")
+class Bike(Vehicle):
+    def start(self):
+        print("The bike is starting with a kick.")
+# vve = Vehicle() # This will raise an error because we cannot create an object of an abstract class.
+car = Car()
+bike = Bike()   
+car.start() # Output: The car is starting with a key.
+bike.start() # Output: The bike is starting with a kick.
+"""
+
+# Write an abstract class Payment with a method pay(). Implement classes like CashPayment and CardPayment.
+"""
+from abc import ABC, abstractmethod
+class Payment(ABC):
+    @abstractmethod
+    def pay(self, amount):
+        pass
+class CashPayment(Payment):
+    def pay(self, amount):
+        print(f"Paying {amount} in cash.")
+class CardPayment(Payment):
+    def pay(self, amount):
+        print(f"Paying {amount} with a card.")
+        
+cashpay = CashPayment()
+cardpay = CardPayment()
+cashpay.pay(100) # Output: Paying 100 in cash.
+cardpay.pay(150) # Output: Paying 150 with a card.
+"""
