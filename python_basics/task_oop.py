@@ -173,3 +173,70 @@ square = Square(4)
 print(f"Area of the circle: {circle.area()}") # Output: Area of the circle: 78.5
 print(f"Area of the square: {square.area()}") # Output: Area of the square: 16
 """
+
+# Write a program where different classes (Bird, Airplane) have the same method fly() but behave differently.
+"""
+class Bird:
+    def fly(self):
+        print("The bird is flying with its wings.")
+class Airplane:
+    def fly(self):
+        print("The airplane is flying with its engines.")
+class Fish:
+    def fly(self):
+        print("Fish cannot fly, it swims in water.")
+        
+bird = Bird()
+airplane = Airplane()
+fish = Fish()
+bird.fly() # Output: The bird is flying with its wings.
+airplane.fly() # Output: The airplane is flying with its engines. 
+fish.fly() # because of polymorphism, the same method name fly() behaves differently based on the object that calls it.
+"""
+
+# Create a function that takes different shapes and calls their area() method (demonstrate polymorphism).
+"""
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+    def area(self):
+        return 3.14 * self.radius ** 2
+class Square:
+    def __init__(self, side):
+        self.side = side
+    def area(self):
+        return self.side ** 2
+class Triangle:
+    def __init__(self, base, height):
+        self.base = base
+        self.height = height
+    def area(self):
+        return 0.5 * self.base * self.height
+
+def calculate_area(shape):
+    print(f"The area of the shape is: {shape.area()}")
+
+circle = Circle(5)
+square = Square(4)
+triangle = Triangle(4, 6)
+calculate_area(circle) # Output: The area of the shape is: 78.5  
+calculate_area(square) # Output: The area of the shape is: 16
+calculate_area(triangle) # Output: The area of the shape is: 12.0
+"""
+
+# Implement method overloading (simulate it in Python using default arguments).
+"""
+class Calculator:
+    def add(self, a, b, c=0): # c is an optional parameter with a default value of 0.
+        return a + b + c
+    def multiply(self, *numbers): # using *args to allow for a variable number of arguments for multiplication.
+        result = 1
+        for num in numbers:
+            result *= num
+        return result
+calc = Calculator() 
+print(calc.add(5, 3)) # Output: 8 (using the add method with two parameters)
+print(calc.add(5, 3, 2)) # Output: 10 (using the add method with three parameters)
+
+print(calc.multiply(2,3,3,5)) # Output: 90 (using the multiply method with four parameters)
+"""
