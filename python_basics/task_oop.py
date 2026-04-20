@@ -281,3 +281,28 @@ cardpay = CardPayment()
 cashpay.pay(100) # Output: Paying 100 in cash.
 cardpay.pay(150) # Output: Paying 150 with a card.
 """
+
+# Write a class Book that initializes title and author using a constructor.
+"""
+class Book:
+    def __init__(self, title, author):
+        self.title = title
+        self.author = author
+    def display_info(self):
+        print(f"Title: {self.title}, Author: {self.author}")
+        
+book1 = Book("To kill a Mockingbird", "Harper Lee")
+book1.display_info()
+"""
+
+# Create a class that prints a message when an object is created and another when it is deleted.
+"""
+class Message:
+    def __init__(self, message):
+        self.message = message
+        print(f"Message created: {self.message}")
+    def __del__(self):
+        print(f"Message deleted: {self.message}")
+
+msg = Message("Hello, World!")
+"""
