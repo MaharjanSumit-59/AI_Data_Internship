@@ -306,3 +306,92 @@ class Message:
 
 msg = Message("Hello, World!")
 """
+
+# Create a class Library that can add books, remove books, and display all books.
+"""
+class Library:
+    def __init__(self):
+        self.books = [] # initializing an empty list to store the books in the library.
+    def add_book(self, book):
+        self.books.append(book) # adding a book to the library by appending it to the books list.
+        print(f"Book '{book}' added to the library.")
+    def remove_book(self, book):
+        if book in self.books:
+            self.books.remove(book) # removing a book from the library if it exists in the books list.
+            print(f"Book '{book}' removed from the library.")
+        else:
+            print(f"Book '{book}' not found in the library.")
+    def display_books(self):
+        if self.books: # checking if there are any books in the library before displaying them.
+            print("Books in the library:")
+            for book in self.books:
+                print(f"- {book}")
+        else:
+            print("No books in the library.")
+library = Library()
+library.display_books()
+library.add_book("Hello, Python!")
+library.add_book("Learning OOP")
+library.add_book("Python Programming")
+library.add_book("Data Structures in Python")
+library.display_books()
+library.remove_book("Hello, Python!")
+library.display_books()
+"""
+
+# Build a simple ShoppingCart class that can add items, remove items, and calculate total price.
+"""
+class ShoppingCart:
+    def __init__(self):
+        self.items = {} # initializing an empty dictionary to store items and their prices in the shopping cart.
+    def add_item(self, item, price):
+        self.items[item] = price # adding an item to the shopping cart by setting the item as a key and its price as the value in the items dictionary.
+        print(f"Item '{item}' added to the shopping cart with price {price}.")
+    def remove_item(self, item):
+        if item in self.items:
+            del self.items[item] # removing an item from the shopping cart if it exists in the items dictionary.
+            print(f"Item '{item}' removed from the shopping cart.")
+        else:
+            print(f"Item '{item}' not found in the shopping cart.")
+    def calculate_total(self):
+        total = sum(self.items.values()) # calculating the total price by summing the values (prices) in the items dictionary.
+        print(f"Total price of items in the shopping cart: {total}")
+
+cart = ShoppingCart()
+cart.add_item("Laptop", 1000)
+cart.add_item("Headphones", 200)
+cart.add_item("Mouse", 50)
+cart.calculate_total()
+cart.remove_item("Headphones")
+cart.calculate_total()
+"""
+
+# Write a class Timer that starts, stops, and shows elapsed time.
+"""
+class Timer:
+    import time
+    def __init__(self):
+        self.start_time = None
+        self.end_time = None
+    def start(self):
+        self.start_time = self.time.time() # recording the start time using the time module.
+        print("Timer started.")
+    def stop(self):
+        if self.start_time is not None:
+            self.end_time = self.time.time() # recording the end time using the time module.
+            print("Timer stopped.")
+        else:
+            print("Timer has not been started yet.")
+    def elapsed_time(self):
+        if self.start_time is not None and self.end_time is not None:
+            elapsed = self.end_time - self.start_time # calculating the elapsed time by subtracting the start time from the end time.
+            print(f"Elapsed time: {elapsed:.2f} seconds.")
+        else:
+            print("Timer has not been started and stopped properly.")
+            
+timer = Timer()
+timer.start()
+timer.time.sleep(2) # simulating a delay of 2 seconds to demonstrate the timer functionality.       
+timer.stop()
+timer.elapsed_time()
+"""
