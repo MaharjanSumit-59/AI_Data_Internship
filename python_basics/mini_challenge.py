@@ -115,3 +115,130 @@ while True:
         print("Invalid choice. Please try again.")
 """
 
+# Build a simple banking system with multiple accounts and transactions.
+"""
+class BankAccount:
+    def __init__(self):
+        self.accounts = {} # To store account details
+    def create_account(self):
+        name = input("Enter account holder's name: ")
+        account_number = input("Enter account number: ")
+        initial_deposit = float(input("Enter initial deposit amount: "))
+        self.accounts[account_number] = {
+            "name": name,
+            "balance": initial_deposit
+        }
+        print(f"Account for {name} created successfully with balance ${initial_deposit}.")
+
+            
+class User(BankAccount):
+    def __init__(self):
+        super().__init__()
+        self.logged_in_account = None
+    def login(self):
+        account_number = input("Enter account number: ")
+        if account_number in self.accounts:
+            self.logged_in_account = account_number
+            print(f"Welcome {self.accounts[account_number]['name']}!")
+        else:
+            print("Account number not found.")
+    def deposit(self):
+        if self.logged_in_account:
+            amount = float(input("Enter amount to deposit: "))
+            if amount > 0:
+                self.accounts[self.logged_in_account]['balance'] += amount
+                print(f"Deposited ${amount}. New balance: ${self.accounts[self.logged_in_account]['balance']}")
+            else:
+                print("Deposit amount must be positive.")
+        else:
+            print("Please log in to perform this action.")
+    def withdraw(self):
+        if self.logged_in_account:
+            amount = float(input("Enter amount to withdraw: "))
+            if amount > 0:
+                if amount <= self.accounts[self.logged_in_account]['balance']:
+                    self.accounts[self.logged_in_account]['balance'] -= amount
+                    print(f"Withdrew ${amount}. New balance: ${self.accounts[self.logged_in_account]['balance']}")
+                else:
+                    print("Insufficient funds.")
+            else:
+                print("Withdrawal amount must be positive.")
+        else:
+            print("Please log in to perform this action.")
+    def check_balance(self):
+        if self.logged_in_account:
+            print(f"Current balance: ${self.accounts[self.logged_in_account]['balance']}")
+        else:
+            print("Please log in to perform this action.")
+    def logout(self):
+        if self.logged_in_account:
+            print(f"Goodbye {self.accounts[self.logged_in_account]['name']}!")
+            self.logged_in_account = None
+        else:
+            print("No account is currently logged in.")
+            
+    def send_money(self):
+        if self.logged_in_account:
+            recipient_account = input("Enter recipient account number: ")
+            if recipient_account in self.accounts:
+                amount = float(input("Enter amount to send: "))
+                if amount > 0:
+                    if amount <= self.accounts[self.logged_in_account]['balance']:
+                        self.accounts[self.logged_in_account]['balance'] -= amount
+                        self.accounts[recipient_account]['balance'] += amount
+                        print(f"Sent ${amount} to {self.accounts[recipient_account]['name']}. New balance: ${self.accounts[self.logged_in_account]['balance']}")
+                    else:
+                        print("Insufficient funds.")
+                else:
+                    print("Amount must be positive.")
+            else:
+                print("Recipient account number not found.")
+        else:
+            print("Please log in to perform this action.")
+            
+# Example usage:
+bank = User()
+
+while True:
+    print("\nBanking System")
+
+    if bank.logged_in_account is None:
+        # Menu before login
+        print("1. Create Account")
+        print("2. Login")
+        print("3. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            bank.create_account()
+        elif choice == "2":
+            bank.login()
+        elif choice == "3":
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+    else:
+        # Menu after login
+        print("1. Deposit")
+        print("2. Withdraw")
+        print("3. Send Money")
+        print("4. Check Balance")
+        print("5. Logout")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            bank.deposit()
+        elif choice == "2":
+            bank.withdraw()
+        elif choice == "3":
+            bank.send_money()
+        elif choice == "4":
+            bank.check_balance()
+        elif choice == "5":
+            bank.logout()
+        else:
+            print("Invalid choice. Please try again.")
+"""
