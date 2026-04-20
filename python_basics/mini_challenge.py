@@ -53,3 +53,65 @@ user1.check_balance()
 
 """
 
+# Create a mini student management system using classes (add, remove, search students).
+"""
+class Student:
+    def __init__(self):
+        self.students = {} # To store student records
+    def add_student(self):
+        name = input("Enter student name: ")
+        age = input("Enter student age: ")
+        student_id = input("Enter student ID: ")
+        department = input("Enter student department: ")
+        self.students[student_id] = {
+            "name": name,
+            "age": age,
+            "department": department
+        }
+        print(f"Student {name} added successfully.")
+    def remove_student(self):
+        student_id = input("Enter student ID to remove: ")
+        if student_id in self.students:
+            removed_student = self.students.pop(student_id)
+            print(f"Student {removed_student} removed successfully.")
+        else:
+            print("Student ID not found.")
+    def search_student(self):
+        student_id = input("Enter student ID to search: ")
+        if student_id in self.students:
+            student_info = self.students[student_id]
+            print(f"Student found: {student_info}")
+        else:
+            print("Student ID not found.")
+    def display_students(self):
+        if self.students:
+            print("Student List:")
+            for student_id, info in self.students.items():
+                print(f"ID: {student_id}, Name: {info['name']}, Age: {info['age']}, Department: {info['department']}")
+
+            
+        
+# Example usage:
+std1 = Student()
+while True:
+    print("\nStudent Management System")
+    print("1. Add Student")
+    print("2. Remove Student")
+    print("3. Search Student")
+    print("4. Display All Students")
+    print("5. Exit")
+    choice = input("Enter your choice: ")
+    if choice == "1":
+        std1.add_student()
+    elif choice == "2":
+        std1.remove_student()
+    elif choice == "3":
+        std1.search_student()
+    elif choice == "4":
+        std1.display_students()
+    elif choice == "5":
+        break
+    else:
+        print("Invalid choice. Please try again.")
+"""
+
