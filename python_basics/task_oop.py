@@ -395,3 +395,92 @@ timer.time.sleep(2) # simulating a delay of 2 seconds to demonstrate the timer f
 timer.stop()
 timer.elapsed_time()
 """
+"""
+import time
+import tkinter as tk
+
+class Stopwatch:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Stopwatch")
+
+        self.running = False
+        self.start_time = 0
+        self.elapsed = 0
+
+        # Display
+        self.label = tk.Label(root, text="00:00.00", font=("Courier", 36), bg="black", fg="lime")
+        self.label.pack(pady=20, fill="x")
+
+        # Buttons frame
+        frame = tk.Frame(root)
+        frame.pack(pady=10)
+
+        self.start_btn = tk.Button(frame, text="Start", width=10, command=self.toggle)
+        self.start_btn.grid(row=0, column=0, padx=5)
+
+        self.reset_btn = tk.Button(frame, text="Reset", width=10, command=self.reset)
+        self.reset_btn.grid(row=0, column=1, padx=5)
+
+        self.lap_btn = tk.Button(frame, text="Lap", width=10, command=self.lap, state="disabled")
+        self.lap_btn.grid(row=0, column=2, padx=5)
+
+        # Lap list
+        self.lap_list = tk.Listbox(root, width=30, height=10)
+        self.lap_list.pack(pady=10)
+
+        self.lap_count = 0
+
+        self.update()
+
+    def format_time(self, seconds):
+        mins = int(seconds // 60)
+        secs = int(seconds % 60)
+        ms = int((seconds - int(seconds)) * 100)
+        return f"{mins:02}:{secs:02}.{ms:02}"
+
+    def toggle(self):
+        if not self.running:
+            self.start_time = time.time()
+            self.running = True
+            self.start_btn.config(text="Stop")
+            self.lap_btn.config(state="normal")
+        else:
+            self.elapsed += time.time() - self.start_time
+            self.running = False
+            self.start_btn.config(text="Start")
+            self.lap_btn.config(state="disabled")
+
+    def reset(self):
+        self.running = False
+        self.start_time = 0
+        self.elapsed = 0
+        self.lap_count = 0
+        self.label.config(text="00:00.00")
+        self.start_btn.config(text="Start")
+        self.lap_btn.config(state="disabled")
+        self.lap_list.delete(0, tk.END)
+
+    def lap(self):
+        if self.running:
+            self.lap_count += 1
+            current_time = self.get_time()
+            self.lap_list.insert(tk.END, f"Lap {self.lap_count}: {self.format_time(current_time)}")
+
+    def get_time(self):
+        if self.running:
+            return self.elapsed + (time.time() - self.start_time)
+        return self.elapsed
+
+    def update(self):
+        current_time = self.get_time()
+        self.label.config(text=self.format_time(current_time))
+        self.root.after(30, self.update)  # smoother update
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry("300x400")
+    app = Stopwatch(root)
+    root.mainloop()
+"""
