@@ -1,0 +1,14 @@
+Weather Summary for Lalitpur
+Latitude: 27.6728, Longitude: 85.3188
+
+Hottest day: 2026-04-22 (28.0°C)
+Coldest day: 2026-04-25 (23.7°C)
+
+7-Day Temperature Forecast:
+2026-04-21 -> 27.9°C
+2026-04-22 -> 28.0°C
+2026-04-23 -> 28.0°C
+2026-04-24 -> 27.1°C
+2026-04-25 -> 23.7°C
+2026-04-26 -> 23.9°C
+2026-04-27 -> 24.0°C
