@@ -1,5 +1,7 @@
 import numpy as np 
 
+### EASY
+
 # Create a NumPy array with values from 0 to 9.
 """
 array = np.arange(10)
@@ -60,4 +62,77 @@ print(arr)
 arr = np.array([[1,2,3], [4,4,5]])
 arr = arr * 5
 print(arr)
+"""
+
+
+### MEDIUM
+
+# Create a 5×5 identity matrix.
+"""
+arr = np.identity(5)
+print(arr) 
+"""
+# Generate a random array of size 3×3 (values between 0 and 1).
+"""
+arr = np.random.rand(3, 3)  
+print(arr)
+"""
+# Find the maximum and minimum values in an array.
+"""
+arr = np.array([[1,2,3], [4,5,6]])
+max_value = np.max(arr)
+min_value = np.min(arr)
+print(f"Max value: {max_value}, Min value: {min_value}")
+"""
+# Compute the mean, median, and standard deviation of an array.
+"""
+arr = np.array([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]])
+mean = np.mean(arr)
+median = np.median(arr)
+std_dev = np.std(arr)
+print(f"Mean: {mean}, Median: {median}, Standard Deviation: {std_dev}")
+"""
+# Extract all elements greater than 10 from an array.
+"""
+arr = np.array([[1, 12, 3], [14, 5, 6]])
+greater_than_10 = arr[arr > 10]
+print(greater_than_10)
+"""
+# Replace all even numbers in an array with 0.
+"""
+arr = np.array([[1, 2, 3], [4, 5, 6]])
+x = arr.copy()
+x[x % 2 == 0] =0
+print(x)
+"""
+# Stack two arrays vertically and horizontally.
+"""
+arr = np.array([[1, 2], [3, 4]])
+arr2 = np.array([[5, 6], [7, 8]])
+# Vertical stack
+vertical_stack = np.vstack((arr, arr2))
+print("Vertical Stack:\n", vertical_stack)
+# Horizontal stack
+horizontal_stack = np.hstack((arr, arr2))
+print("Horizontal Stack:\n", horizontal_stack)
+"""
+# Flatten a 2D array into 1D.
+"""
+arr = np.array([[1, 2, 3], [4, 5, 6]])
+flattened = arr.flatten()
+print(arr)
+print(flattened)
+"""
+# Find the indices of elements greater than a given value.
+"""
+arr = np.array([[1, 12, 3], [14, 5, 6]])
+greater_than_10_indices = np.where(arr > 10)
+print(greater_than_10_indices)
+"""
+# Slice a 2D array to get a specific submatrix (e.g., middle 2×2 block).
+"""
+arr = np.array([[1,2,3,4], [5,6,7,8], [9,10,11,12], [13,14,15,16]])
+submatrix = arr[2:4, 1:3]
+print(arr)
+print(submatrix)
 """
