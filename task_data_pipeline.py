@@ -75,3 +75,12 @@ def load_existing_data():
     if os.path.exists(CSV_FILE):
         return pd.read_csv(CSV_FILE)
     return pd.DataFrame(columns=["title", "description", "published_at", "source", "url", "country"])
+
+# Save data to CSV without duplicates
+def save_data(data):
+    existing_data = load_existing_data()
+    new_data = pd.DataFrame(data)
+    combined_data = pd.concat([existing_data, new_data])
+    combined_data.drop_duplicates(subset=["title", "source"], inplace=True)
+    combined_data.to_csv(CSV_FILE, index=False)
+    return combined_data
