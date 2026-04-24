@@ -22,6 +22,7 @@ import requests
 import pandas as pd
 from datetime import datetime, timedelta
 import os
+import time
 from dotenv import load_dotenv
 from dateutil import parser
 
@@ -90,6 +91,7 @@ def run_pipeline():
     all_articles = []
     for code, country in COUNTRIES.items():
         articles = fetch_news(code)
+        time.sleep(2)  # wait 2 seconds
         for a in articles:
             cleaned = clean_articles(a, country)
             all_articles.append(cleaned)
