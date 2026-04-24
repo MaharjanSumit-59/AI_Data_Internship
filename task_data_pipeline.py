@@ -41,6 +41,8 @@ COUNTRIES = {
     "au" : "Australia"
 }
 
+CSV_FILE = "news_data.csv"
+
 # Function to fetch news data from GNews API
 def fetch_news(country_code):
     params = {
@@ -56,3 +58,20 @@ def fetch_news(country_code):
     except requests.exceptions.RequestException as e:
         print(f"Error fetching news for {COUNTRIES[country_code]}: {e}")
         return []
+    
+# Function to clean data articles
+def clean_articles(article, country):
+    return {
+        "title": article.get("title", "N/A"),
+        "description": article.get("description", "N/A"),
+        "published_at": article.get("publishedAt", "N/A"),
+        "source": article.get("source", {}).get("name", "N/A"),
+        "url": article.get("url", "N/A"),
+        "country": country
+    }
+
+# Load existing data if CSV exists
+def load_existing_data():
+    if os.path.exists(CSV_FILE):
+        return pd.read_csv(CSV_FILE)
+    return pd.DataFrame(columns=["title", "description", "published_at", "source", "url", "country"])
