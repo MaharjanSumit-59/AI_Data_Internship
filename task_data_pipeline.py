@@ -31,3 +31,28 @@ load_dotenv()
 # Fetch API URL and key from environment variables
 url = os.getenv("BASE_URL")
 api_key = os.getenv("API_KEY")
+
+# Define the countries to fetch news for
+COUNTRIES = {
+    "np" : "Nepal",
+    "in" : "India",
+    "us" : "USA",
+    "gb" : "UK",
+    "au" : "Australia"
+}
+
+# Function to fetch news data from GNews API
+def fetch_news(country_code):
+    params = {
+        "country": country_code,
+        "token": api_key,
+        "max": 100  # Fetch up to 100 headlines per country
+    }
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        return data.get('articles', [])
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching news for {COUNTRIES[country_code]}: {e}")
+        return []
