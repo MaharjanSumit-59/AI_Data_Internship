@@ -84,3 +84,19 @@ def save_data(data):
     combined_data.drop_duplicates(subset=["title", "source"], inplace=True)
     combined_data.to_csv(CSV_FILE, index=False)
     return combined_data
+
+# Function to run the data pipeline
+def run_pipeline():
+    all_articles = []
+    for code, country in COUNTRIES.items():
+        articles = fetch_news(code)
+        for a in articles:
+            cleaned = clean_articles(a, country)
+            all_articles.append(cleaned)
+    df = save_data(all_articles)
+    return df
+
+# Main execution
+if __name__ == "__main__":
+    news_df = run_pipeline()
+    print(f"Total unique headlines saved: {len(news_df)}")
