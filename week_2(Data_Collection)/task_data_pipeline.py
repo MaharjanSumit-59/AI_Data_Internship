@@ -20,11 +20,10 @@ Running the script twice must not create duplicate rows in the CSV
 # Import necessary libraries
 import requests
 import pandas as pd
-from datetime import datetime, timedelta
 import os
 import time
 from dotenv import load_dotenv
-from dateutil import parser
+
 
 # Load environment variables
 load_dotenv()
