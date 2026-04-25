@@ -65,7 +65,18 @@ def analyze_data(df):
         f"\nRecent (<6h): {recent_percentage:.2f}% | Older: {older_percentage:.2f}%"
     )
     
-    
+    # 6. Save only headlines with a title longer than 6 words to a CSV. How many passed that filter?
+    long_headlines = df[df["word_count"] > 6] # Filter headlines with title longer than 6 words
+    long_headlines.to_csv("Filtered_Headlines.csv", index=False) # Save to a
+    print(f"\nNumber of headlines with titles longer than 6 words: {len(long_headlines)}")
+
+    # 7. Which country had the longest headline on average — and which had the shortest?
+    avg_word_count = df.groupby("country")["word_count"].mean()
+    longest_avg_headline_country = avg_word_count.idxmax()
+    shortest_avg_headline_country = avg_word_count.idxmin()
+    print(f"\nCountry with longest average headline: {longest_avg_headline_country}")
+    print(f"Country with shortest average headline: {shortest_avg_headline_country}")
+
 if __name__ == "__main__":
     df = load_data()
     if df is not None:
