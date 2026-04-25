@@ -10,9 +10,8 @@ Which country had the longest headline on average — and which had the shortest
 """
 
 import pandas as pd
-from datetime import datetime, timedelta
-import os
-from dateutil import parser
+from datetime import datetime, timedelta, timezone
+
 
 def load_data():
     try:
@@ -27,7 +26,7 @@ def preprocess_data(df):
     # word count in headline titles
     df["word_count"] = df["title"].str.split().str.len() # Add a new column for word count in headline titles
     # Datetime parsing
-    df["published_at"] = df["published_at"].apply(lambda x: parser.parse(x) if x != "N/A" else pd.NaT)
+    df["published_at"] = pd.to_datetime(df["published_at"], utc=True, errors="coerce")
     return df
 
 
@@ -52,7 +51,21 @@ def analyze_data(df):
             print(f"1.  {title}")
     else:
         print("\nNo headlines appeared in more than one country.")
-
+        
+    # 4. News source that published the most headlines across all 5 countries combined
+    most_common_source = df["source"].value_counts().idxmax()
+    print(f"\nNews source that published the most headlines across all countries: {most_common_source}")
+    
+    # 5. Percentage of all headlines published in the last 6 hours vs older than 6 hours
+    now = datetime.now(timezone.utc)
+    df["recent"] = (now - df["published_at"]) <= pd.Timedelta(hours=6) # Create a boolean column to indicate if the headline is recent (published within the last 6 hours)
+    recent_percentage = df["recent"].mean() * 100
+    older_percentage = 100 - recent_percentage
+    print(
+        f"\nRecent (<6h): {recent_percentage:.2f}% | Older: {older_percentage:.2f}%"
+    )
+    
+    
 if __name__ == "__main__":
     df = load_data()
     if df is not None:
