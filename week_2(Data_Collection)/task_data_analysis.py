@@ -43,7 +43,15 @@ def analyze_data(df):
     print("\nAverage number of words in a headline title per country:")
     for country, avg_words in avg_words_per_country.items():
         print(f"  {country}: {avg_words:.2f}")
-
+    
+    # 3. Headlines that appeared in more than one country
+    duplicate_headlines = df[df.duplicated(subset=["title"], keep=False)] # Find duplicate headlines based on title
+    if not duplicate_headlines.empty:
+        print("\nHeadlines that appeared in more than one country:")
+        for title in duplicate_headlines["title"].unique(): # Print unique duplicate headlines
+            print(f"1.  {title}")
+    else:
+        print("\nNo headlines appeared in more than one country.")
 
 if __name__ == "__main__":
     df = load_data()
