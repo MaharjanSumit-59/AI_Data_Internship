@@ -1,0 +1,142 @@
+"""
+Task 02 · API → MySQL Pipeline [Hard]
+Goal:
+Fetch user data from an API, store it in MySQL, and query it — complete automated pipeline.
+1. Fetch all users from:
+https://jsonplaceholder.typicode.com/users
+2. Create app.db with a users table:
+id, name, email, phone, city, company_name
+3. Extract:
+- city from address.city
+- company_name from company.name (nested JSON)
+4. Insert all 10 users into the database with proper error handling
+5. Query 1:
+Print all users sorted alphabetically by name
+6. Query 2:
+Find users from the same city
+(GROUP BY city, HAVING COUNT > 1)
+7. Add a second table: posts
+Fetch from:
+https://jsonplaceholder.typicode.com/posts
+Insert only posts where user_id is 1, 2, and 3
+Deliverable:
+app.db with users + posts tables + both query outputs
+Bonus:
+JOIN users and posts and print each user's posts
+"""
+
+import os
+import requests
+from dotenv import load_dotenv
+import mysql.connector
+
+# load environment variables
+load_dotenv()
+
+# Connect to MySQL server
+conn = mysql.connector.connect(
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    )
+cursor = conn.cursor()
+
+# Create database and tables
+cursor.execute("create database if not exists app_db")
+cursor.execute("use app_db")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id INT PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    city VARCHAR(100),
+    company_name VARCHAR(255)
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS posts (
+    id INT PRIMARY KEY,
+    user_id INT,
+    title VARCHAR(255),
+    body TEXT,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+)""")
+
+# Fetch users from API
+response = requests.get(os.getenv("API_URL"))
+if response.status_code == 200:
+    users = response.json()
+    for u in users:
+        try:
+            cursor.execute("""
+            INSERT INTO users (id, name, email, phone, city, company_name)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """, (
+                u["id"],
+                u["name"],
+                u["email"],
+                u["phone"],
+                u["address"]["city"],          # nested JSON
+                u["company"]["name"]           # nested JSON
+            ))
+        except Exception as e:
+            print("User insert error:", e)
+
+conn.commit() # commit after all inserts because of foreign key constraint as posts depend on users
+
+# Fetch posts from API
+response = requests.get(os.getenv("POSTS_API_URL"))
+if response.status_code == 200:
+    posts = response.json()
+    for p in posts:
+        if p["userId"] in [1, 2, 3]: # only insert posts for user_id 1, 2, 3
+            try:
+                cursor.execute("""
+                INSERT INTO posts (id, user_id, title, body)
+                VALUES (%s, %s, %s, %s)
+                """, (
+                    p["id"],
+                    p["userId"],
+                    p["title"],
+                    p["body"]
+                ))
+            except Exception as e:
+                print("Post insert error:", e)
+
+conn.commit() # commit after all inserts
+
+# Query 1: Print all users sorted alphabetically by name
+print("\n--- All Users (sorted by name) ---")
+cursor.execute("select name, email, city from users order by name")
+for row in cursor.fetchall():
+    print(row)
+    
+# Query 2: Find users from the same city
+print("\n--- Users from the same city ---")
+cursor.execute("""
+SELECT city, COUNT(*) 
+FROM users
+GROUP BY city
+HAVING COUNT(*) > 1
+""")
+for row in cursor.fetchall():
+    print(row)
+    
+# Bonus: JOIN users and posts and print each user's posts
+print("\n--- Users and their posts ---")
+cursor.execute("""
+SELECT users.name, posts.title
+FROM users
+JOIN posts ON users.id = posts.user_id
+ORDER BY users.name
+""")
+for row in cursor.fetchall():
+    print(row)
+    
+# Cleanup
+cursor.close()
+conn.close()
