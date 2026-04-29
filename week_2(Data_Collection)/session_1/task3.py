@@ -39,7 +39,7 @@ try:
     daily = data.get("daily", {})
 
     dates = daily.get("time", [])
-    temps = daily.get("temperature_2m_max", [])
+    temps = daily.get("temperature_2m_max", []) 
 
     # Save to CSV
     with open("weather.csv", "w", newline="") as f:
