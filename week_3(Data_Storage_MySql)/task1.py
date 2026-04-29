@@ -25,8 +25,8 @@ load_dotenv()
 
 # Connect to MySQL server
 conn = mysql.connector.connect(
-    host="localhost",
-    user ="root",
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
     password=os.getenv("DB_PASSWORD"),
     database="library_db"
     )
