@@ -22,4 +22,3 @@ INSERT INTO books (title, author, year, genre, rating) VALUES
 ('Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', 1997, 'Fantasy', 4.9),
 ('The Girl with the Dragon Tattoo', 'Stieg Larsson', 2005, 'Thriller', 4.3),
 ('Sapiens', 'Yuval Noah Harari', 2011, 'Non-fiction', 4.5);
-PRIMARY
