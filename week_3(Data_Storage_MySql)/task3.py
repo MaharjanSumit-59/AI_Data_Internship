@@ -38,9 +38,10 @@ CREATE TABLE IF NOT EXISTS forecasts (
     city VARCHAR(100),
     date DATE,
     max_temp FLOAT,
-    min_temp FLOAT
+    min_temp FLOAT,
+    UNIQUE KEY unique_city_date (city, date)
 )
-""")
+""") # Add UNIQUE constraint to prevent duplicate entries for the same city and date
 
 # Fetch weather data for 3 cities (example: New York, London, Tokyo)
 params = {
@@ -71,7 +72,10 @@ for city, coords in cities.items():
             cursor.execute("""
                 INSERT INTO forecasts (city, date, max_temp, min_temp)
                 VALUES (%s, %s, %s, %s)
-            """, (city, date, max_temp, min_temp))
+                ON DUPLICATE KEY UPDATE
+                    max_temp = VALUES(max_temp),
+                    min_temp = VALUES(min_temp)
+            """, (city, date, max_temp, min_temp)) # Use ON DUPLICATE KEY UPDATE to handle potential duplicates gracefully
         conn.commit()
     else:
         print(f"Failed to fetch data for {city}: {response.status_code}")
