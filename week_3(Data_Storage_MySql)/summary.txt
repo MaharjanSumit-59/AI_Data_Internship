@@ -1,0 +1,14 @@
+Weather Summary Report
+=====================
+
+Hottest city on average: Tokyo with avg max temp 20.87°C
+
+Hottest day across all cities: Tokyo on 2026-05-02 with max temp 26.20°C
+
+Days with temperature difference > 10°C:
+New York on 2026-05-01: Max 16.00°C, Min 4.60°C, Diff 11.40°C
+London on 2026-05-01: Max 23.90°C, Min 12.00°C, Diff 11.90°C
+Tokyo on 2026-05-01: Max 21.20°C, Min 10.00°C, Diff 11.20°C
+Tokyo on 2026-05-02: Max 26.20°C, Min 12.30°C, Diff 13.90°C
+Tokyo on 2026-05-03: Max 24.40°C, Min 13.00°C, Diff 11.40°C
+
