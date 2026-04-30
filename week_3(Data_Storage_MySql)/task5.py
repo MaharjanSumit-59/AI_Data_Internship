@@ -26,7 +26,7 @@ Bonus:
 import requests
 import mysql.connector
 import pandas as pd
-import os
+import os, time
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -60,7 +60,7 @@ except mysql.connector.Error as err:
 # Create database and table
 cursor.execute("CREATE DATABASE IF NOT EXISTS news_db")
 cursor.execute("USE news_db")
-# cursor.execute("DROP TABLE IF EXISTS articles") # Start with a clean slate each time
+cursor.execute("DROP TABLE IF EXISTS articles") # Start with a clean slate each time
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS articles (
@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS articles (
 def fetch_news():
     all_articles = []
     for country_code in COUNTRIES.keys():
+        time.sleep(2)  # wait 2 seconds between requests
         params = {
             "apikey": api_key,
             "country": country_code
@@ -155,9 +156,25 @@ def store_news(articles):
             print(f"Error inserting article {article['id']}: {err}")
 
     conn.commit()
-    
+# Close MySQL connection
+def close_connection():
+    cursor.close()
+    conn.close()
+
+# save to CSV without duplicates
+def export_to_csv():
+    try:
+        df = pd.read_sql("SELECT * FROM articles", conn) # ✅ FIXED: use SQL query to get data from MySQL
+        df.drop_duplicates(subset=["id"], inplace=True) # ✅ Remove duplicates based on '
+        df.to_csv("news_data.csv", index=False)
+        print("Data exported to news_data.csv successfully!")
+    except Exception as e:
+        print(f"Error exporting data to CSV: {e}")
+
 # Main flow
 if __name__ == "__main__":
     articles = fetch_news()
     store_news(articles)
+    export_to_csv()
+    close_connection()
     print("Done: News fetched and stored successfully.")
