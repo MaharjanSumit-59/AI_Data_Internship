@@ -28,6 +28,7 @@ import mysql.connector
 import pandas as pd
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 # Load environment variables from .env file
 load_dotenv()
@@ -59,7 +60,7 @@ except mysql.connector.Error as err:
 # Create database and table
 cursor.execute("CREATE DATABASE IF NOT EXISTS news_db")
 cursor.execute("USE news_db")
-# cursor.execute("DROP TABLE IF EXISTS news") # Start with a clean slate each time
+# cursor.execute("DROP TABLE IF EXISTS articles") # Start with a clean slate each time
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS articles (
@@ -68,7 +69,6 @@ CREATE TABLE IF NOT EXISTS articles (
     description TEXT,
     content TEXT,
     url TEXT,
-    image TEXT,
     lang VARCHAR(10),
     source_name VARCHAR(255),
     source_url TEXT,
@@ -98,39 +98,63 @@ def fetch_news():
     
     return all_articles
 
+# function to clean and prepare data for MySQL insertion
+def clean_article(article):
+    # Fix datetime format
+    raw_date = article.get("publishedAt")
+    try:
+        published_at = datetime.strptime(raw_date, "%Y-%m-%dT%H:%M:%SZ") if raw_date else None
+    except Exception:
+        published_at = None
+    return {
+        "id": article.get("id"),  # FIXED (NOT uuid)
+        "title": article.get("title", "N/A"),
+        "description": article.get("description", "N/A"),
+        "content": article.get("content", "N/A"),
+        "url": article.get("url", "N/A"),
+        "lang": article.get("lang", "N/A"),
+        "source_name": article.get("source", {}).get("name", "N/A"),
+        "source_url": article.get("source", {}).get("url", "N/A"),
+        "published_at": published_at
+    }
+
 # Function to store news data in MySQL without duplicates
 def store_news(articles):
-    for article, country_code in articles:
+    for raw_article, country_code in articles:
+        article = clean_article(raw_article)   # ✅ USE CLEAN FUNCTION
+
         try:
             cursor.execute("""
-            INSERT INTO articles (id, title, description, content, url, image, lang, source_name, source_url, country, published_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO articles 
+            (id, title, description, content, url, lang, source_name, source_url, country, published_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
                 title = VALUES(title),
                 description = VALUES(description),
                 content = VALUES(content),
                 url = VALUES(url),
-                image = VALUES(image),
                 lang = VALUES(lang),
                 source_name = VALUES(source_name),
                 source_url = VALUES(source_url),
+                country = VALUES(country),
                 published_at = VALUES(published_at)
             """, (
-                article.get("id"),   # FIXED (NOT uuid)
-                article.get("title"),
-                article.get("description"),
-                article.get("content"),
-                article.get("url"),
-                article.get("image"),
-                article.get("lang"),
-                article.get("source", {}).get("name"),
-                article.get("source", {}).get("url"),
+                article["id"],                
+                article["title"],
+                article["description"],
+                article["content"],
+                article["url"],
+                article["lang"],
+                article["source_name"],       # ✅ cleaned
+                article["source_url"],        # ✅ cleaned
                 country_code,
-                article.get("publishedAt")
+                article["published_at"]       # ✅ fixed datetime
             ))
+
         except mysql.connector.Error as err:
-            print(f"Error inserting article {article.get('uuid')}: {err}")
-    conn.commit()  # Commit after all inserts   
+            print(f"Error inserting article {article['id']}: {err}")
+
+    conn.commit()
     
 # Main flow
 if __name__ == "__main__":
