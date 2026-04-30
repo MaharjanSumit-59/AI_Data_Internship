@@ -55,3 +55,85 @@ try:
 except mysql.connector.Error as err:
     print(f"Error connecting to MySQL: {err}")
     exit(1)
+    
+# Create database and table
+cursor.execute("CREATE DATABASE IF NOT EXISTS news_db")
+cursor.execute("USE news_db")
+# cursor.execute("DROP TABLE IF EXISTS news") # Start with a clean slate each time
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS articles (
+    id VARCHAR(255) PRIMARY KEY,
+    title TEXT,
+    description TEXT,
+    content TEXT,
+    url TEXT,
+    image TEXT,
+    lang VARCHAR(10),
+    source_name VARCHAR(255),
+    source_url TEXT,
+    country VARCHAR(10),
+    published_at DATETIME
+)
+""")
+
+# Function to fetch news data from API
+def fetch_news():
+    all_articles = []
+    for country_code in COUNTRIES.keys():
+        params = {
+            "apikey": api_key,
+            "country": country_code
+        }
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()  # Raise an error for bad status codes
+            data = response.json()
+            # all_articles.extend(data.get("data", []))  # Add articles to the list
+            # FIXED HERE
+            for article in data.get("articles", []):
+                all_articles.append((article, country_code))
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching news for {COUNTRIES[country_code]}: {e}")
+    
+    return all_articles
+
+# Function to store news data in MySQL without duplicates
+def store_news(articles):
+    for article, country_code in articles:
+        try:
+            cursor.execute("""
+            INSERT INTO articles (id, title, description, content, url, image, lang, source_name, source_url, country, published_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                title = VALUES(title),
+                description = VALUES(description),
+                content = VALUES(content),
+                url = VALUES(url),
+                image = VALUES(image),
+                lang = VALUES(lang),
+                source_name = VALUES(source_name),
+                source_url = VALUES(source_url),
+                published_at = VALUES(published_at)
+            """, (
+                article.get("id"),   # FIXED (NOT uuid)
+                article.get("title"),
+                article.get("description"),
+                article.get("content"),
+                article.get("url"),
+                article.get("image"),
+                article.get("lang"),
+                article.get("source", {}).get("name"),
+                article.get("source", {}).get("url"),
+                country_code,
+                article.get("publishedAt")
+            ))
+        except mysql.connector.Error as err:
+            print(f"Error inserting article {article.get('uuid')}: {err}")
+    conn.commit()  # Commit after all inserts   
+    
+# Main flow
+if __name__ == "__main__":
+    articles = fetch_news()
+    store_news(articles)
+    print("Done: News fetched and stored successfully.")
