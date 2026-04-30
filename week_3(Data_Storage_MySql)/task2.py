@@ -126,9 +126,10 @@ conn.commit() # commit after all inserts
 # Query 1: Print all users sorted alphabetically by name
 print("\n--- All Users (sorted by name) ---")
 cursor.execute("select name, email, city from users order by name")
-for row in cursor.fetchall():
-    print(row)
-    
+results = cursor.fetchall()
+for name, email, city in results:
+    print(f"Name: {name}, Email: {email}, City: {city}")
+
 # Query 2: Find users from the same city
 print("\n--- Users from the same city ---")
 cursor.execute("""
@@ -137,8 +138,9 @@ FROM users
 GROUP BY city
 HAVING COUNT(*) > 1
 """)
-for row in cursor.fetchall():
-    print(row)
+results = cursor.fetchall()
+for city, count in results:
+    print(f"City: {city}, Count: {count}")
     
 # Bonus: JOIN users and posts and print each user's posts
 print("\n--- Users and their posts ---")
@@ -148,8 +150,10 @@ FROM users
 JOIN posts ON users.id = posts.user_id
 ORDER BY users.name
 """)
-for row in cursor.fetchall():
-    print(row)
+results = cursor.fetchall()
+for name, title in results:
+    print(f"User: {name}, Post Title: {title}")
+
     
 # Cleanup
 cursor.close()
