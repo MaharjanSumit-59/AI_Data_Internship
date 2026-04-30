@@ -27,12 +27,16 @@ import mysql.connector
 load_dotenv()
 
 # Connect to MySQL server
-conn = mysql.connector.connect(
-    host=os.getenv("DB_HOST"),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-    )
-cursor = conn.cursor()
+try:
+    conn = mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        )
+    cursor = conn.cursor()
+except mysql.connector.Error as err:
+    print(f"Error connecting to MySQL: {err}")
+    exit(1)
 
 # Create database and table
 cursor.execute("create database if not exists library_db")
