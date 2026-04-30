@@ -1,15 +1,34 @@
-Weather Summary Report
-=====================
+Articles per country:
+in: 10
+us: 10
+np: 8
 
-Hottest city on average: Tokyo with avg max temp 21.93°C
+Top 5 news sources:
+AajTak: 2 articles
+Primera Hora: 2 articles
+The Guardian: 2 articles
+The New York Times: 2 articles
+AP News: 1 articles
 
-Hottest day: Tokyo on 2026-05-02 with 26.90°C
+Latest 5 articles:
+Kunnen drones tekort aan soldaten opvangen? Oekraïne probeert het, maar mensen betalen de prijs (np) - 2026-04-30 04:08:24
+Σε υψηλό τετραετίας το πετρέλαιο ενώ ο Τραμπ εξετάζει πολύμηνο αποκλεισμό στα Στενά του Ορμούζ (np) - 2026-04-30 04:08:12
+Trump o możliwym wycofaniu żołnierzy z Niemiec. "Decyzja będzie podjęta wkrótce" (np) - 2026-04-30 04:08:00
+Vinod Kambli : थरथरणारे हात, चालताही येईना; पण सचिनच्या टीमला सपोर्ट करायला वानखेडेवर पोहोचला विनोद कांबळी, पाहा Video (in) - 2026-04-30 04:08:00
+Tinubu appoints Odumegwu-Ojukwu as new foreign minister (np) - 2026-04-30 04:07:53
 
-Days with temperature difference > 10°C:
-New York on 2026-05-01: Max 16.70°C, Min 5.90°C, Humidity 68.17% | Diff 10.80°C
-New York on 2026-05-04: Max 19.80°C, Min 9.60°C, Humidity 44.46% | Diff 10.20°C
-London on 2026-05-01: Max 24.80°C, Min 12.10°C, Humidity 48.38% | Diff 12.70°C
-Tokyo on 2026-05-01: Max 22.00°C, Min 10.30°C, Humidity 84.71% | Diff 11.70°C
-Tokyo on 2026-05-02: Max 26.90°C, Min 12.70°C, Humidity 51.58% | Diff 14.20°C
-Tokyo on 2026-05-03: Max 23.60°C, Min 12.90°C, Humidity 66.62% | Diff 10.70°C
-Tokyo on 2026-05-06: Max 22.00°C, Min 11.90°C, Humidity 66.71% | Diff 10.10°C
+Articles per language:
+hi: 3
+en: 10
+te: 3
+mr: 2
+ta: 2
+nl: 1
+pl: 1
+es: 4
+fi: 1
+el: 1
+
+Time range:
+Oldest: 2026-04-30 03:22:00
+Newest: 2026-04-30 04:08:24
