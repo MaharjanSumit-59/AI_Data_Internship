@@ -34,13 +34,17 @@ import mysql.connector
 load_dotenv()
 
 # Connect to MySQL server
-conn = mysql.connector.connect(
-    host=os.getenv("DB_HOST"),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-    )
-cursor = conn.cursor()
-
+try:
+    conn = mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        )
+    cursor = conn.cursor()
+except mysql.connector.Error as err:
+    print("MySQL connection error:", err)
+    exit(1)
+    
 # Create database and tables
 cursor.execute("create database if not exists app_db")
 cursor.execute("use app_db")
@@ -49,8 +53,8 @@ cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
     id INT PRIMARY KEY,
     name VARCHAR(255),
-    email VARCHAR(255),
-    phone VARCHAR(50),
+    email VARCHAR(255) UNIQUE,
+    phone VARCHAR(50) UNIQUE, 
     city VARCHAR(100),
     company_name VARCHAR(255)
 )
@@ -75,13 +79,19 @@ if response.status_code == 200:
             cursor.execute("""
             INSERT INTO users (id, name, email, phone, city, company_name)
             VALUES (%s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    name = VALUES(name),
+                    email = VALUES(email),
+                    phone = VALUES(phone),
+                    city = VALUES(city),
+                    company_name = VALUES(company_name)
             """, (
-                u["id"],
-                u["name"],
-                u["email"],
-                u["phone"],
-                u["address"]["city"],          # nested JSON
-                u["company"]["name"]           # nested JSON
+                u.get("id"),
+                u.get("name"),
+                u.get("email"),
+                u.get("phone"),
+                u.get("address", {}).get("city"),   # safer nested access
+                u.get("company", {}).get("name")    # safer nested access
             ))
         except Exception as e:
             print("User insert error:", e)
@@ -98,11 +108,15 @@ if response.status_code == 200:
                 cursor.execute("""
                 INSERT INTO posts (id, user_id, title, body)
                 VALUES (%s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        user_id = VALUES(user_id),
+                        title = VALUES(title),
+                        body = VALUES(body)
                 """, (
-                    p["id"],
-                    p["userId"],
-                    p["title"],
-                    p["body"]
+                    p.get("id"),
+                    p.get("userId"),
+                    p.get("title"),
+                    p.get("body")
                 ))
             except Exception as e:
                 print("Post insert error:", e)
