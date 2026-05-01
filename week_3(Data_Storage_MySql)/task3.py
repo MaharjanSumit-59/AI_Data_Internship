@@ -150,7 +150,7 @@ hot_days = cursor.fetchall()
 
 # ----------------------------
 # Save report
-with open("summary.txt", "w", encoding="utf-8") as f:
+with open("summary_3.txt", "w", encoding="utf-8") as f:
 
     f.write("Weather Summary Report\n")
     f.write("=====================\n\n")
