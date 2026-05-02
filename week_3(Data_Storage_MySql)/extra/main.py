@@ -107,8 +107,40 @@ def fetch_data():
     print(f"Error fetching data: {e}")
     return None
   
+  
+def clean_data(raw_data):
+  clean_data = []
+  
+  try:
+    for item in raw_data:
+      cleaned_item = {
+        "user_id": int(item.get("id", 0)),
+        "name": item.get("name", "").strip(),
+        "username": item.get("username", "").strip(),
+        "email": item.get("email", "").strip(),
+
+        # flatten nested fields
+        "city": item.get("address", {}).get("city", "").strip(),
+        "company": item.get("company", {}).get("name", "").strip()
+   }
+      
+      # validate cleaned item
+      if cleaned_item["user_id"] == 0 or not cleaned_item["email"]:
+        print(f"Skipping invalid record: {cleaned_item}")
+        continue
+      
+      clean_data.append(cleaned_item)
+
+  except Exception as e:
+    print(f"Error cleaning data: {e}")
+
+  return clean_data
+
 if __name__ == "__main__":
   data = fetch_data()
   if data:
     print(f"Fetched {len(data)} records")
     # print(data[0])  # preview one record
+    cleaned_data = clean_data(data)
+    print(f"Cleaned {len(cleaned_data)} users")
+    print(cleaned_data[0])
