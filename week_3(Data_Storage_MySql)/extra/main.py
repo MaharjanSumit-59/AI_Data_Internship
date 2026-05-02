@@ -78,6 +78,7 @@ Bonus (optional):
 import os
 import requests
 from dotenv import load_dotenv
+from db_setup import get_connection
 
 # load environment variables from .env file
 load_dotenv()
@@ -136,11 +137,61 @@ def clean_data(raw_data):
 
   return clean_data
 
+# Function to store cleaned data in MySQL database
+def store_data(cleaned_data):
+    conn = get_connection()
+
+    if not conn:
+        print("[ERROR] No DB connection")
+        return
+
+    try:
+        cursor = conn.cursor()
+
+        query = """
+        INSERT INTO users (user_id, name, username, email, city, company)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+            name=VALUES(name),
+            username=VALUES(username),
+            email=VALUES(email),
+            city=VALUES(city),
+            company=VALUES(company)
+        """
+
+        for user in cleaned_data:
+            values = (
+                user["user_id"],
+                user["name"],
+                user["username"],
+                user["email"],
+                user["city"],
+                user["company"]
+            )
+
+            cursor.execute(query, values)
+
+        conn.commit()
+        print(f"[DB] Stored {len(cleaned_data)} records successfully")
+
+    except Exception as e:
+        print(f"[DB ERROR] Store failed: {e}")
+
+    finally:
+        cursor.close()
+        conn.close()
+
 if __name__ == "__main__":
+  # Step 1: Fetch data from API
   data = fetch_data()
   if data:
     print(f"Fetched {len(data)} records")
     # print(data[0])  # preview one record
+    
+    # Step 2: Clean and transform data
     cleaned_data = clean_data(data)
     print(f"Cleaned {len(cleaned_data)} users")
     print(cleaned_data[0])
+
+    # Step 3: Store data in database
+    store_data(cleaned_data)
