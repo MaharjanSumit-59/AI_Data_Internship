@@ -297,6 +297,27 @@ def export_to_csv(cleaned_data):
 
     except Exception as e:
         print(f"[EXPORT ERROR] CSV failed: {e}")
+        
+def export_to_txt(results):
+    try:
+        with open("report.txt", "w") as file:
+            file.write("DATA PIPELINE REPORT\n")
+            file.write("=" * 40 + "\n\n")
+
+            file.write(f"Total Users: {results['total_users']['total_users']}\n\n")
+
+            file.write("Top Cities:\n")
+            for row in results["top_cities"]:
+                file.write(f"{row['city']}: {row['user_count']}\n")
+
+            file.write("\nEmail Domains:\n")
+            for row in results["email_domains"]:
+                file.write(f"{row['domain']}: {row['count']}\n")
+
+        print("[EXPORT] TXT report created: report.txt")
+
+    except Exception as e:
+        print(f"[EXPORT ERROR] TXT failed: {e}")
 
 if __name__ == "__main__":
   # Step 1: Fetch data from API
@@ -322,3 +343,6 @@ if __name__ == "__main__":
     
     # Step 5: Export results to CSV
     export_to_csv(cleaned_data)
+    
+    # Step 6: Export summary report to TXT
+    export_to_txt(analysis_results)
