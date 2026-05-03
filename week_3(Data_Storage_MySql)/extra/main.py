@@ -78,15 +78,56 @@ Bonus (optional):
 import os
 import requests
 from dotenv import load_dotenv
-from db_setup import get_connection
+import mysql.connector
 
 # load environment variables from .env file
 load_dotenv()
 
 api_url = os.getenv("API_URL")
 
-# Function to fetch data from the API
+# Database setup
+def get_connection(db=None):
+    return mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database="pipeline_db"
+    )
+def create_database_table():
+    conn = get_connection()
+    cursor = conn.cursor()
 
+    try:
+        cursor.execute("CREATE DATABASE IF NOT EXISTS pipeline_db")
+        print("[DB] Database ensured: pipeline_db")
+
+    except Exception as e:
+        print(f"[DB ERROR] Database creation failed: {e}")
+
+    try:
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INT PRIMARY KEY,
+            name VARCHAR(100),
+            username VARCHAR(100),
+            email VARCHAR(100),
+            city VARCHAR(100),
+            company VARCHAR(100)
+        )
+        """)
+
+        print("[DB] Table ensured: users")
+
+    except Exception as e:
+        print(f"[DB ERROR] Table creation failed: {e}")
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
+# Function to fetch data from the API
 def fetch_data():
   try: 
     response = requests.get(api_url, timeout=10)
@@ -193,5 +234,9 @@ if __name__ == "__main__":
     print(f"Cleaned {len(cleaned_data)} users")
     print(cleaned_data[0])
 
+    # Database setup
+    create_database_table()
+
+    
     # Step 3: Store data in database
     store_data(cleaned_data)
