@@ -75,7 +75,7 @@ Bonus (optional):
   - Save it as an image file 
 """
 
-import os
+import os, csv
 import requests
 from dotenv import load_dotenv
 import mysql.connector
@@ -285,6 +285,19 @@ def run_analysis():
 
     return results
 
+
+def export_to_csv(cleaned_data):
+    try:
+        with open("users.csv", "w", newline="") as file:
+            writer = csv.DictWriter(file, fieldnames=["user_id", "name", "username", "email", "city", "company"])
+            writer.writeheader()
+            writer.writerows(cleaned_data)
+
+        print("[EXPORT] CSV file created: users.csv")
+
+    except Exception as e:
+        print(f"[EXPORT ERROR] CSV failed: {e}")
+
 if __name__ == "__main__":
   # Step 1: Fetch data from API
   data = fetch_data()
@@ -307,3 +320,5 @@ if __name__ == "__main__":
     # Step 4: Run analysis queries
     analysis_results = run_analysis()
     
+    # Step 5: Export results to CSV
+    export_to_csv(cleaned_data)
