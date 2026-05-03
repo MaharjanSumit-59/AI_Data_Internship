@@ -222,6 +222,69 @@ def store_data(cleaned_data):
         cursor.close()
         conn.close()
 
+def run_analysis():
+    conn = get_connection()
+    results = {}
+
+    try:
+        cursor = conn.cursor(dictionary=True) # return results as dicts instead of tuples
+
+        # 1. Total users
+        cursor.execute("SELECT COUNT(*) AS total_users FROM users")
+        results["total_users"] = cursor.fetchone()
+
+        # 2. Users per city (GROUP BY)
+        cursor.execute("""
+            SELECT city, COUNT(*) AS user_count
+            FROM users
+            GROUP BY city
+        """)
+        results["users_per_city"] = cursor.fetchall()
+
+        # 3. Top 3 cities
+        cursor.execute("""
+            SELECT city, COUNT(*) AS user_count
+            FROM users
+            GROUP BY city
+            ORDER BY user_count DESC
+            LIMIT 3
+        """)
+        results["top_cities"] = cursor.fetchall()
+
+        # 4. Email domain analysis
+        cursor.execute("""
+            SELECT SUBSTRING_INDEX(email, '@', -1) AS domain, COUNT(*) AS count 
+            FROM users
+            GROUP BY domain
+        """)
+        results["email_domains"] = cursor.fetchall()
+
+        print("\n📊 ANALYSIS RESULTS")
+
+        print("\nTotal Users:")
+        print(results["total_users"])
+
+        print("\nUsers per City:")
+        for row in results["users_per_city"]:
+            print(row)
+
+        print("\nTop 3 Cities:")
+        for row in results["top_cities"]:
+            print(row)
+
+        print("\nEmail Domains:")
+        for row in results["email_domains"]:
+            print(row)
+
+    except Exception as e:
+        print(f"[DB ERROR] Analysis failed: {e}")
+
+    finally:
+        cursor.close()
+        conn.close()
+
+    return results
+
 if __name__ == "__main__":
   # Step 1: Fetch data from API
   data = fetch_data()
@@ -240,3 +303,7 @@ if __name__ == "__main__":
     
     # Step 3: Store data in database
     store_data(cleaned_data)
+    
+    # Step 4: Run analysis queries
+    analysis_results = run_analysis()
+    
