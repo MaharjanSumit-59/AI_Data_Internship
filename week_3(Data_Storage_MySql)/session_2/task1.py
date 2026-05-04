@@ -71,4 +71,54 @@ def create_database_table():
         cursor.close()
         conn.close()
         
-# 
+# Function to insert sample data into the tables
+def insert_sample_data():
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    # Sample customers
+    customers = [
+        ("Alice", "New York"),
+        ("Bob", "Los Angeles"),
+        ("Charlie", "Chicago"),
+        ("David", "Houston"),
+        ("Eve", "New York"),
+        ("Frank", "Los Angeles"),
+        ("Grace", "San Antonio"),
+        ("Heidi", "San Antonio"),
+        ("Ivan", "New York"),
+        ("Judy", "San Antonio")
+    ]
+    
+    # Sample products
+    products = [
+        ("Laptop", 999.99),
+        ("Smartphone", 499.99),
+        ("Headphones", 199.99),
+        ("Monitor", 299.99),
+        ("Keyboard", 89.99),
+        ("Mouse", 49.99),
+        ("Printer", 149.99),
+        ("Webcam", 79.99)
+    ]
+    
+    # Sample orders (customer_id, product_id, quantity)
+    orders = [
+        (1, 1, 1), (1, 2, 2), (2, 3, 1), (2, 4, 1), (3, 5, 3),
+        (3, 6, 2), (4, 7, 1), (4, 8, 4), (5, 1, 2), (5, 2, 7),
+        (6, 3, 6), (6, 4, 2), (7, 5, 1), (7, 6, 5), (8, 7, 2),
+        (8, 8, 1), (9, 1, 2), (9, 2, 3), (10, 3, 2), (10, 4, 9)
+    ]
+    
+    try:
+        cursor.executemany("INSERT INTO customers (name, city) VALUES (%s, %s)", customers) 
+        cursor.executemany("INSERT INTO products (name, price) VALUES (%s, %s)", products)  # executemany allows us to insert multiple rows in one query
+        cursor.executemany("INSERT INTO orders (customer_id, product_id, quantity) VALUES (%s, %s, %s)", orders)
+        
+        conn.commit()
+        print("[DB] Sample data inserted successfully")
+    except Exception as e:
+        print(f"[DB ERROR] Data insertion failed: {e}")
+    finally:
+        cursor.close()
+        conn.close()
