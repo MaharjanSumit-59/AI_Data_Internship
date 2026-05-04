@@ -50,25 +50,27 @@ def create_database_table():
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS customers (
             customer_id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(100),
+            name VARCHAR(100) UNIQUE,
             city VARCHAR(100)
         )
         """)
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
             product_id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(100),
+            name VARCHAR(100) UNIQUE,
             price DECIMAL(10, 2)
         )
         """)
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS orders (
             order_id INT PRIMARY KEY AUTO_INCREMENT,
-            customer_id INT,
-            product_id INT,
-            quantity INT,
-            FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+            customer_id INT NOT NULL,
+            product_id INT NOT NULL,
+            quantity INT NOT NULL,
+            FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+                ON DELETE CASCADE,
             FOREIGN KEY (product_id) REFERENCES products(product_id)
+                ON DELETE CASCADE
         )
         """)
         print("[DB] Tables ensured: customers, products, orders")
@@ -109,18 +111,63 @@ def insert_sample_data():
         ("Webcam", 79.99)
     ]
     
-    # Sample orders (customer_id, product_id, quantity)
-    orders = [
-        (1, 1, 1), (1, 2, 2), (2, 3, 1), (2, 4, 1), (3, 5, 3),
-        (3, 6, 2), (4, 7, 1), (4, 8, 4), (5, 1, 2), (5, 2, 7),
-        (6, 3, 6), (6, 4, 2), (7, 5, 1), (7, 6, 5), (8, 7, 2),
-        (8, 8, 1), (9, 1, 2), (9, 2, 3), (10, 3, 2), (10, 4, 9)
-    ]
-    
     try:
-        cursor.executemany("INSERT INTO customers (name, city) VALUES (%s, %s)", customers) 
-        cursor.executemany("INSERT INTO products (name, price) VALUES (%s, %s)", products)  # executemany allows us to insert multiple rows in one query
-        cursor.executemany("INSERT INTO orders (customer_id, product_id, quantity) VALUES (%s, %s, %s)", orders)
+        cursor.executemany("""
+        INSERT INTO customers (name, city)
+        VALUES (%s, %s)
+        ON DUPLICATE KEY UPDATE
+        city = VALUES(city)
+        """, customers)
+        
+        cursor.executemany("""
+        INSERT INTO products (name, price)
+        VALUES (%s, %s)
+        ON DUPLICATE KEY UPDATE
+        price = VALUES(price)
+        """, products)  # executemany allows us to insert multiple rows in one query
+        
+        conn.commit()
+        
+        # SAFE ID MAPPING (IMPORTANT FIX)
+        cursor.execute("SELECT customer_id, name FROM customers")
+        customer_map = {name: cid for cid, name in cursor.fetchall()}
+
+        cursor.execute("SELECT product_id, name FROM products")
+        product_map = {name: pid for pid, name in cursor.fetchall()}
+        
+        # Orders using names (SAFE)
+        raw_orders = [
+            ("Alice", "Laptop", 1),
+            ("Alice", "Smartphone", 2),
+            ("Bob", "Headphones", 1),
+            ("Bob", "Monitor", 1),
+            ("Charlie", "Keyboard", 3),
+            ("Charlie", "Mouse", 2),
+            ("David", "Printer", 1),
+            ("David", "Webcam", 4),
+            ("Eve", "Laptop", 2),
+            ("Eve", "Smartphone", 7),
+            ("Eve", "Headphones", 6),
+            ("Frank", "Monitor", 2),
+            ("Grace", "Keyboard", 1),
+            ("Grace", "Mouse", 5),
+            ("Grace", "Printer", 2),
+            ("Ivan", "Webcam", 1),
+            ("Ivan", "Laptop", 2),
+            ("Ivan", "Smartphone", 3),
+            ("Judy", "Headphones", 2),
+            ("Judy", "Monitor", 9)
+        ]
+        
+        cleaned_orders = [
+            (customer_map[c], product_map[p], q)
+            for c, p, q in raw_orders
+        ]
+        
+        cursor.executemany("""
+        INSERT INTO orders (customer_id, product_id, quantity)
+        VALUES (%s, %s, %s)
+        """, cleaned_orders)
         
         conn.commit()
         print("[DB] Sample data inserted successfully")
@@ -165,6 +212,51 @@ def run_analysis():
         print("\n=== Most Ordered Products ===")
         for row in results["most_ordered_product"]:
             print(f"{row['product_name']} -> {row['total_quantity']}")
+            
+        # 3. Customers with more than 2 orders
+        cursor.execute("""
+            SELECT 
+                c.name AS customer_name,
+                COUNT(o.order_id) AS total_orders
+            FROM customers c
+            JOIN orders o ON c.customer_id = o.customer_id
+            GROUP BY c.customer_id, c.name
+            HAVING COUNT(o.order_id) > 2
+        """)
+
+        results["frequent_customers"] = cursor.fetchall()
+
+        print("\n=== Customers with More Than 2 Orders ===")
+        for row in results["frequent_customers"]:
+            print(f"{row['customer_name']} -> {row['total_orders']} orders")
+        
+        # 4. Average order value per city
+        cursor.execute("""
+            SELECT 
+                c.city,
+                AVG(o.quantity * p.price) AS avg_order_value
+            FROM customers c
+            JOIN orders o ON c.customer_id = o.customer_id
+            JOIN products p ON o.product_id = p.product_id
+            GROUP BY c.city
+            ORDER BY avg_order_value DESC
+        """)
+
+        results["avg_order_value_per_city"] = cursor.fetchall()
+
+        print("\n=== Average Order Value Per City ===")
+        for row in results["avg_order_value_per_city"]:
+            print(f"{row['city']} -> {row['avg_order_value']:.2f}")
+            
+        # csv export
+        with open("revenue_report.csv", "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["Customer", "Total Spent"])
+
+            for r in results["total_spent_per_customer"]:
+                writer.writerow([r["customer_name"], r["total_spent"]])
+
+        print("\n[CSV] revenue_report.csv created")
         
     except Exception as e:
         print(f"[ANALYSIS ERROR] {e}")
