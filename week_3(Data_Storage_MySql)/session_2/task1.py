@@ -24,7 +24,7 @@ def get_connection(db=None): #db=None means we can connect to MySQL without spec
         host=os.getenv("DB_HOST"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
-        database="store_db"
+        database=db
     )
 # Create database and tables
 def create_database_table():
@@ -35,6 +35,13 @@ def create_database_table():
     try:
         cursor.execute("CREATE DATABASE IF NOT EXISTS store_db")
         print("[DB] Database ensured: store_db")
+        
+        cursor.close()
+        conn.close()
+
+        conn = get_connection("store_db")
+        cursor = conn.cursor()
+        
     except Exception as e:
         print(f"[DB ERROR] Database creation failed: {e}")
     
@@ -73,7 +80,7 @@ def create_database_table():
         
 # Function to insert sample data into the tables
 def insert_sample_data():
-    conn = get_connection()
+    conn = get_connection("store_db")
     cursor = conn.cursor()
     
     # Sample customers
@@ -122,3 +129,52 @@ def insert_sample_data():
     finally:
         cursor.close()
         conn.close()
+        
+# Function to run the required queries 
+def run_analysis():
+    conn = get_connection("store_db")
+    cursor = conn.cursor(dictionary=True) # return results as dicts instead of tuples
+    results = {}
+    
+    try:
+        # 1. Total money spent per customer (join + price x quantity, sorted highest first)
+        cursor.execute("""
+            SELECT c.name AS customer_name, SUM(p.price * o.quantity) AS total_spent
+            FROM customers c
+            JOIN orders o ON c.customer_id = o.customer_id
+            JOIN products p ON o.product_id = p.product_id
+            GROUP BY c.name, c.customer_id
+            ORDER BY total_spent DESC
+        """)
+        results["total_spent_per_customer"] = cursor.fetchall() # fetchall() gets all results of the query, we store it in a dict for later use
+        
+        print("\n=== Total Money Spent Per Customer ===")
+        for row in results["total_spent_per_customer"]:
+            print(f"{row['customer_name']} -> {row['total_spent']}")
+        
+        # 2. Most Ordered Product by quantity
+        cursor.execute("""
+            SELECT p.name AS product_name, SUM(o.quantity) AS total_quantity
+            FROM products p
+            JOIN orders o ON p.product_id = o.product_id
+            GROUP BY p.product_id
+            ORDER BY total_quantity DESC
+        """)
+        results["most_ordered_product"] = cursor.fetchall()        
+        
+        print("\n=== Most Ordered Products ===")
+        for row in results["most_ordered_product"]:
+            print(f"{row['product_name']} -> {row['total_quantity']}")
+        
+    except Exception as e:
+        print(f"[ANALYSIS ERROR] {e}")
+    finally:
+        cursor.close()
+        conn.close()
+        
+
+# Main execution
+if __name__ == "__main__":
+    create_database_table()
+    insert_sample_data()
+    run_analysis()
