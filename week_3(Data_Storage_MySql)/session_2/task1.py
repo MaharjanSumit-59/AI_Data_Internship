@@ -207,7 +207,7 @@ def run_analysis():
             GROUP BY p.product_id
             ORDER BY total_quantity DESC
         """)
-        results["most_ordered_product"] = cursor.fetchall()        
+        results["most_ordered_product"] = cursor.fetchall()       
         
         print("\n=== Most Ordered Products ===")
         for row in results["most_ordered_product"]:
