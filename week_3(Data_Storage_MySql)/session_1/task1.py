@@ -39,29 +39,38 @@ except mysql.connector.Error as err:
     exit(1)
 
 # Create database and table
-cursor.execute("create database if not exists library_db")
-cursor.execute("use library_db")
+try:
+    cursor.execute("create database if not exists library_db")
+    cursor.execute("use library_db")
+except Exception as err:
+    print(f"Error using database: {err}")
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS books (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255),
-    author VARCHAR(255),
-    year INT,
-    genre VARCHAR(100),
-    rating REAL
-)
-""")
 
-cursor.execute("""
-create table if not exists reviews (
-    id int auto_increment primary key,
-    book_id int,
-    review_text text,
-    rating int,
-    foreign key (book_id) references books(id)
-)
-""")
+try:
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS books (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255),
+        author VARCHAR(255),
+        year INT,
+        genre VARCHAR(100),
+        rating REAL
+    )
+    """)
+
+    cursor.execute("""
+    create table if not exists reviews (
+        id int auto_increment primary key,
+        book_id int,
+        review_text text,
+        rating int,
+        foreign key (book_id) references books(id)
+    )
+    """)
+    conn.commit()
+    print("[DB] Setup complete")
+except Exception as e:
+    print(f"[DB ERROR] Table creation failed: {e}")
 
 # Sample data for books and reviews
 books_data = [
@@ -103,53 +112,57 @@ for review in reviews_data:
 # Commit the changes
 conn.commit()
 
-# Query 1: SELECT all books published after 2000, ordered by rating (highest first) 
-cursor.execute("""
-    SELECT title, author, year, genre, rating FROM books
-    WHERE year > 2000
-    ORDER BY rating DESC
-""")
-results = cursor.fetchall()
-print("Books published after 2000, ordered by rating:")
-for title, author, year, genre, rating in results:
-    print(f"{title} by {author} ({year}) - Genre: {genre}, Rating: {rating}")
-    
-# Query 2: SELECT all books in the 'Fiction' genre with rating above 4.0
-cursor.execute("""
-    SELECT title, author, year, rating FROM books
-    WHERE genre = 'Fiction' AND rating > 4.0
-""")
-results = cursor.fetchall()
-print("\nFiction books with rating above 4.0:")
-for title, author, year, rating in results:
-    print(f"{title} by {author} ({year}) - Rating: {rating}")   
-    
-# Query 3: Find the average rating across all books
-cursor.execute("""
-    SELECT AVG(rating) FROM books
-""")
-result = cursor.fetchone()
-print(f"\nAverage rating across all books: {result[0]:.2f}")
 
-# Query 4: Count how many books exist per genre — use GROUP BY genre
-cursor.execute("""
-    SELECT genre, COUNT(*) FROM books
-    GROUP BY genre
-""")
-results = cursor.fetchall()
-print("\nNumber of books per genre:")
-for genre, count in results:
-    print(f"{genre}: {count} books")
-    
-# Bonus: Query to show reviews for each book
-cursor.execute("""
-    SELECT b.title, r.review_text, r.rating FROM books b
-    JOIN reviews r ON b.id = r.book_id
-""")
-results = cursor.fetchall()
-print("\nBook reviews:")
-for title, review_text, rating in results:
-    print(f"{title} - Review: {review_text} (Rating: {rating})")
+try:
+    # Query 1: SELECT all books published after 2000, ordered by rating (highest first) 
+    cursor.execute("""
+        SELECT title, author, year, genre, rating FROM books
+        WHERE year > 2000
+        ORDER BY rating DESC
+    """)
+    results = cursor.fetchall()
+    print("Books published after 2000, ordered by rating:")
+    for title, author, year, genre, rating in results:
+        print(f"{title} by {author} ({year}) - Genre: {genre}, Rating: {rating}")
+        
+    # Query 2: SELECT all books in the 'Fiction' genre with rating above 4.0
+    cursor.execute("""
+        SELECT title, author, year, rating FROM books
+        WHERE genre = 'Fiction' AND rating > 4.0
+    """)
+    results = cursor.fetchall()
+    print("\nFiction books with rating above 4.0:")
+    for title, author, year, rating in results:
+        print(f"{title} by {author} ({year}) - Rating: {rating}")   
+        
+    # Query 3: Find the average rating across all books
+    cursor.execute("""
+        SELECT AVG(rating) FROM books
+    """)
+    result = cursor.fetchone()
+    print(f"\nAverage rating across all books: {result[0]:.2f}")
+
+    # Query 4: Count how many books exist per genre — use GROUP BY genre
+    cursor.execute("""
+        SELECT genre, COUNT(*) FROM books
+        GROUP BY genre
+    """)
+    results = cursor.fetchall()
+    print("\nNumber of books per genre:")
+    for genre, count in results:
+        print(f"{genre}: {count} books")
+        
+    # Bonus: Query to show reviews for each book
+    cursor.execute("""
+        SELECT b.title, r.review_text, r.rating FROM books b
+        JOIN reviews r ON b.id = r.book_id
+    """)
+    results = cursor.fetchall()
+    print("\nBook reviews:")
+    for title, review_text, rating in results:
+        print(f"{title} - Review: {review_text} (Rating: {rating})")
+except Exception as e:
+    print(f"Error during analysis: {e}")
 
 # Close the connection
 cursor.close()

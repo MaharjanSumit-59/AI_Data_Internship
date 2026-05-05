@@ -44,31 +44,35 @@ try:
 except mysql.connector.Error as err:
     print("MySQL connection error:", err)
     exit(1)
-    
+
+
 # Create database and tables
 cursor.execute("create database if not exists app_db")
 cursor.execute("use app_db")
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    id INT PRIMARY KEY,
-    name VARCHAR(255),
-    email VARCHAR(255) UNIQUE,
-    phone VARCHAR(50) UNIQUE, 
-    city VARCHAR(100),
-    company_name VARCHAR(255)
-)
-""")
+try:
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INT PRIMARY KEY,
+        name VARCHAR(255),
+        email VARCHAR(255) UNIQUE,
+        phone VARCHAR(50) UNIQUE, 
+        city VARCHAR(100),
+        company_name VARCHAR(255)
+    )
+    """)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS posts (
-    id INT PRIMARY KEY,
-    user_id INT,
-    title VARCHAR(255),
-    body TEXT,
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS posts (
+        id INT PRIMARY KEY,
+        user_id INT,
+        title VARCHAR(255),
+        body TEXT,
 
-    FOREIGN KEY (user_id) REFERENCES users(id)
-)""")
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )""")
+except Exception as e:
+    print(f"[DB ERROR] Table creation failed: {e}")
 
 # Fetch users from API
 response = requests.get(os.getenv("API_URL"))
@@ -123,37 +127,39 @@ if response.status_code == 200:
 
 conn.commit() # commit after all inserts
 
-# Query 1: Print all users sorted alphabetically by name
-print("\n--- All Users (sorted by name) ---")
-cursor.execute("select name, email, city from users order by name")
-results = cursor.fetchall()
-for name, email, city in results:
-    print(f"Name: {name}, Email: {email}, City: {city}")
+try:
+    # Query 1: Print all users sorted alphabetically by name
+    print("\n--- All Users (sorted by name) ---")
+    cursor.execute("select name, email, city from users order by name")
+    results = cursor.fetchall()
+    for name, email, city in results:
+        print(f"Name: {name}, Email: {email}, City: {city}")
 
-# Query 2: Find users from the same city
-print("\n--- Users from the same city ---")
-cursor.execute("""
-SELECT city, COUNT(*) 
-FROM users
-GROUP BY city
-HAVING COUNT(*) > 1
-""")
-results = cursor.fetchall()
-for city, count in results:
-    print(f"City: {city}, Count: {count}")
-    
-# Bonus: JOIN users and posts and print each user's posts
-print("\n--- Users and their posts ---")
-cursor.execute("""
-SELECT users.name, posts.title
-FROM users
-JOIN posts ON users.id = posts.user_id
-ORDER BY users.name
-""")
-results = cursor.fetchall()
-for name, title in results:
-    print(f"User: {name}, Post Title: {title}")
-
+    # Query 2: Find users from the same city
+    print("\n--- Users from the same city ---")
+    cursor.execute("""
+    SELECT city, COUNT(*) 
+    FROM users
+    GROUP BY city
+    HAVING COUNT(*) > 1
+    """)
+    results = cursor.fetchall()
+    for city, count in results:
+        print(f"City: {city}, Count: {count}")
+        
+    # Bonus: JOIN users and posts and print each user's posts
+    print("\n--- Users and their posts ---")
+    cursor.execute("""
+    SELECT users.name, posts.title
+    FROM users
+    JOIN posts ON users.id = posts.user_id
+    ORDER BY users.name
+    """)
+    results = cursor.fetchall()
+    for name, title in results:
+        print(f"User: {name}, Post Title: {title}")
+except Exception as e:
+    print(f"Error during analysis: {e}")
     
 # Cleanup
 cursor.close()
