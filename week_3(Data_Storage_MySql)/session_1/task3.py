@@ -35,21 +35,25 @@ except mysql.connector.Error as err:
     print(f"Error connecting to MySQL: {err}")
     exit(1)
 
-# Create database and table
-cursor.execute("CREATE DATABASE IF NOT EXISTS weather_db")
-cursor.execute("USE weather_db")
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS forecasts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    city VARCHAR(100),
-    date DATE,
-    max_temp FLOAT,
-    min_temp FLOAT,
-    humidity FLOAT,
-    UNIQUE KEY unique_city_date (city, date)
-)
-""")
+try:
+    # Create database and table
+    cursor.execute("CREATE DATABASE IF NOT EXISTS weather_db")
+    cursor.execute("USE weather_db")
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS forecasts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        city VARCHAR(100),
+        date DATE,
+        max_temp FLOAT,
+        min_temp FLOAT,
+        humidity FLOAT,
+        UNIQUE KEY unique_city_date (city, date)
+    )
+    """)
+except Exception as e:
+    print(f"Error during creating table: {e}")
 
 # Fetch weather data for 3 cities
 params = {
@@ -120,55 +124,60 @@ for city, coords in cities.items():
     else:
         print(f"Failed to fetch data for {city}: {response.status_code}")
 
-# ----------------------------
-# Query 1
-cursor.execute("""
-SELECT city, AVG(max_temp) as avg_max
-FROM forecasts
-GROUP BY city
-ORDER BY avg_max DESC
-LIMIT 1
-""")
-hottest_city = cursor.fetchone()
+try:
+    # ----------------------------
+    # Query 1
+    cursor.execute("""
+    SELECT city, AVG(max_temp) as avg_max
+    FROM forecasts
+    GROUP BY city
+    ORDER BY avg_max DESC
+    LIMIT 1
+    """)
+    hottest_city = cursor.fetchone()
 
-# Query 2
-cursor.execute("""
-SELECT city, date, max_temp
-FROM forecasts
-ORDER BY max_temp DESC
-LIMIT 1
-""")
-hottest_day = cursor.fetchone()
+    # Query 2
+    cursor.execute("""
+    SELECT city, date, max_temp
+    FROM forecasts
+    ORDER BY max_temp DESC
+    LIMIT 1
+    """)
+    hottest_day = cursor.fetchone()
 
-# Query 3
-cursor.execute("""
-SELECT city, date, max_temp, min_temp, humidity
-FROM forecasts
-WHERE (max_temp - min_temp) > 10
-""")
-hot_days = cursor.fetchall()
+    # Query 3
+    cursor.execute("""
+    SELECT city, date, max_temp, min_temp, humidity
+    FROM forecasts
+    WHERE (max_temp - min_temp) > 10
+    """)
+    hot_days = cursor.fetchall()
+except Exception as e:
+    print(f"Error during analysis: {e}")
 
-# ----------------------------
-# Save report
-with open("summary_3.txt", "w", encoding="utf-8") as f:
 
-    f.write("Weather Summary Report\n")
-    f.write("=====================\n\n")
+try:
+    # Save report
+    with open("summary_3.txt", "w", encoding="utf-8") as f:
 
-    if hottest_city:
-        f.write(f"Hottest city on average: {hottest_city[0]} with avg max temp {hottest_city[1]:.2f}°C\n\n")
+        f.write("Weather Summary Report\n")
+        f.write("=====================\n\n")
 
-    if hottest_day:
-        f.write(f"Hottest day: {hottest_day[0]} on {hottest_day[1]} with {hottest_day[2]:.2f}°C\n\n")
+        if hottest_city:
+            f.write(f"Hottest city on average: {hottest_city[0]} with avg max temp {hottest_city[1]:.2f}°C\n\n")
 
-    f.write("Days with temperature difference > 10°C:\n")
+        if hottest_day:
+            f.write(f"Hottest day: {hottest_day[0]} on {hottest_day[1]} with {hottest_day[2]:.2f}°C\n\n")
 
-    for city, date, max_temp, min_temp, humidity in hot_days:
-        diff = max_temp - min_temp
-        f.write(f"{city} on {date}: Max {max_temp:.2f}°C, Min {min_temp:.2f}°C, Humidity {humidity:.2f}% | Diff {diff:.2f}°C\n")
+        f.write("Days with temperature difference > 10°C:\n")
 
-print("summary.txt created successfully!")
+        for city, date, max_temp, min_temp, humidity in hot_days:
+            diff = max_temp - min_temp
+            f.write(f"{city} on {date}: Max {max_temp:.2f}°C, Min {min_temp:.2f}°C, Humidity {humidity:.2f}% | Diff {diff:.2f}°C\n")
 
+    print("summary.txt created successfully!")
+except Exception as e:
+    print(f"Error during exporting csv: {e}")
 # Close connection
 cursor.close()
 conn.close()

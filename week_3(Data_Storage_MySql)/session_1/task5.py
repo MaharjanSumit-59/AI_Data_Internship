@@ -57,25 +57,28 @@ except mysql.connector.Error as err:
     print(f"Error connecting to MySQL: {err}")
     exit(1)
     
-# Create database and table
-cursor.execute("CREATE DATABASE IF NOT EXISTS news_db")
-cursor.execute("USE news_db")
-cursor.execute("DROP TABLE IF EXISTS articles") # Start with a clean slate each time
+try:
+    # Create database and table
+    cursor.execute("CREATE DATABASE IF NOT EXISTS news_db")
+    cursor.execute("USE news_db")
+    cursor.execute("DROP TABLE IF EXISTS articles") # Start with a clean slate each time
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS articles (
-    id VARCHAR(255) PRIMARY KEY,
-    title TEXT,
-    description TEXT,
-    content TEXT,
-    url TEXT,
-    lang VARCHAR(10),
-    source_name VARCHAR(255),
-    source_url TEXT,
-    country VARCHAR(10),
-    published_at DATETIME
-)
-""")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS articles (
+        id VARCHAR(255) PRIMARY KEY,
+        title TEXT,
+        description TEXT,
+        content TEXT,
+        url TEXT,
+        lang VARCHAR(10),
+        source_name VARCHAR(255),
+        source_url TEXT,
+        country VARCHAR(10),
+        published_at DATETIME
+    )
+    """)
+except Exception as e:
+    print(f"Error during creating table: {e}")
 
 # Function to fetch news data from API
 def fetch_news():

@@ -22,67 +22,69 @@ except mysql.connector.Error as err:
 
 # Function to run queries and collect results
 def run_analysis():
-    results = []
+    try:
+        results = []
 
-    # 1. Articles per country
-    cursor.execute("""
-        SELECT country, COUNT(*) 
-        FROM articles 
-        GROUP BY country
-    """)
-    country_data = cursor.fetchall()
-    results.append("Articles per country:")
-    for row in country_data:
-        results.append(f"{row[0]}: {row[1]}")
+        # 1. Articles per country
+        cursor.execute("""
+            SELECT country, COUNT(*) 
+            FROM articles 
+            GROUP BY country
+        """)
+        country_data = cursor.fetchall()
+        results.append("Articles per country:")
+        for row in country_data:
+            results.append(f"{row[0]}: {row[1]}")
 
-    # 2. Top 5 sources
-    cursor.execute("""
-        SELECT source_name, COUNT(*) as total
-        FROM articles
-        GROUP BY source_name
-        ORDER BY total DESC
-        LIMIT 5
-    """)
-    source_data = cursor.fetchall()
-    results.append("\nTop 5 news sources:")
-    for row in source_data:
-        results.append(f"{row[0]}: {row[1]} articles")
+        # 2. Top 5 sources
+        cursor.execute("""
+            SELECT source_name, COUNT(*) as total
+            FROM articles
+            GROUP BY source_name
+            ORDER BY total DESC
+            LIMIT 5
+        """)
+        source_data = cursor.fetchall()
+        results.append("\nTop 5 news sources:")
+        for row in source_data:
+            results.append(f"{row[0]}: {row[1]} articles")
 
-    # 3. Latest 5 articles
-    cursor.execute("""
-        SELECT title, country, published_at
-        FROM articles
-        ORDER BY published_at DESC
-        LIMIT 5
-    """)
-    latest_data = cursor.fetchall()
-    results.append("\nLatest 5 articles:")
-    for row in latest_data:
-        results.append(f"{row[0]} ({row[1]}) - {row[2]}")
+        # 3. Latest 5 articles
+        cursor.execute("""
+            SELECT title, country, published_at
+            FROM articles
+            ORDER BY published_at DESC
+            LIMIT 5
+        """)
+        latest_data = cursor.fetchall()
+        results.append("\nLatest 5 articles:")
+        for row in latest_data:
+            results.append(f"{row[0]} ({row[1]}) - {row[2]}")
 
-    # 4. Articles per language
-    cursor.execute("""
-        SELECT lang, COUNT(*)
-        FROM articles
-        GROUP BY lang
-    """)
-    lang_data = cursor.fetchall()
-    results.append("\nArticles per language:")
-    for row in lang_data:
-        results.append(f"{row[0]}: {row[1]}")
+        # 4. Articles per language
+        cursor.execute("""
+            SELECT lang, COUNT(*)
+            FROM articles
+            GROUP BY lang
+        """)
+        lang_data = cursor.fetchall()
+        results.append("\nArticles per language:")
+        for row in lang_data:
+            results.append(f"{row[0]}: {row[1]}")
 
-    # 5. Oldest and newest article
-    cursor.execute("""
-        SELECT MIN(published_at), MAX(published_at)
-        FROM articles
-    """)
-    time_data = cursor.fetchone()
-    results.append("\nTime range:")
-    results.append(f"Oldest: {time_data[0]}")
-    results.append(f"Newest: {time_data[1]}")
+        # 5. Oldest and newest article
+        cursor.execute("""
+            SELECT MIN(published_at), MAX(published_at)
+            FROM articles
+        """)
+        time_data = cursor.fetchone()
+        results.append("\nTime range:")
+        results.append(f"Oldest: {time_data[0]}")
+        results.append(f"Newest: {time_data[1]}")
 
-    return results
-
+        return results
+    except Exception as e:
+        print(f"Error during analysis: {e}")
 
 # Save to summary_5.txt
 def save_summary(results):
