@@ -13,7 +13,8 @@ Deliverable: MySQL monitor_db with both tables populated + Python script
 
 import mysql.connector
 import os
-import requests
+import json
+from urllib import request,error
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -82,14 +83,27 @@ def create_database_table():
 # Fetch posts from API
 def fetch_api():
     try:
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            posts = response.json()
-        return posts
+        with request.urlopen(url, timeout=10) as response:
+            if response.status != 200:
+                raise Exception(f"Status code: {response.status}")
+
+            data = json.loads(response.read())
+            return data
+
+    except error.HTTPError as e:
+        print(f"[API HTTP ERROR] {e.code} - {e.reason}")
+
+    except error.URLError as e:
+        print(f"[API URL ERROR] {e.reason}")
+
+    except json.JSONDecodeError:
+        print("[API ERROR] Failed to decode JSON response")
+
     except Exception as e:
         print("[API ERROR]", e)
-        return []
-    
+
+    return []
+
 # LOAD EXISTING POSTS (OPTIMIZED DICT LOOKUP)
 def load_db_posts(cursor):
     cursor.execute("SELECT id, userId, title, body FROM posts")
