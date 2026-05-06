@@ -13,7 +13,8 @@ Deliverable: weather.csv + analysis script + summary.txt
 
 import requests
 import csv
-import os
+import os, json
+from urllib import request, error, parse
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -31,15 +32,19 @@ params = {
 }
 
 try:
-    response = requests.get(url, params=params)
+    # Encode parameters into url
+    query_string = parse.urlencode(params)
+    full_url = f"{url}?{query_string}"
+    with request.urlopen(full_url) as response:
+        if response.status != 200:
+            raise Exception(f"Failed with status code: {response.status}")
+        print("Weather data fetched successfully.")
 
-    print("Weather data fetched successfully.")
+        data = json.loads(response.read())
+        daily = data.get("daily", {})
 
-    data = response.json()
-    daily = data.get("daily", {})
-
-    dates = daily.get("time", [])
-    temps = daily.get("temperature_2m_max", []) 
+        dates = daily.get("time", [])
+        temps = daily.get("temperature_2m_max", []) 
 
     # Save to CSV
     with open("weather.csv", "w", newline="") as f:
@@ -73,5 +78,14 @@ try:
     print("Summary saved to summary.txt")
 
 
+except error.HTTPError as e:
+    print(f"HTTP Error: {e.code} - {e.reason}")
+
+except error.URLError as e:
+    print(f"URL Error: {e.reason}")
+
+except ValueError as e:
+    print(f"Data Error: {e}")
+
 except Exception as e:
-    print(f"Error: {e}")
+    print(f"Unexpected Error: {e}")
