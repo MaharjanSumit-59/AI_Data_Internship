@@ -75,8 +75,8 @@ Bonus (optional):
   - Save it as an image file 
 """
 
-import os, csv
-import requests
+import os, csv, json
+from urllib import request,error
 from dotenv import load_dotenv
 import mysql.connector
 
@@ -130,21 +130,21 @@ def create_database_table():
 # Function to fetch data from the API
 def fetch_data():
   try: 
-    response = requests.get(api_url, timeout=10)
-    
-    if response.status_code != 200:
-      raise Exception(f"API returned non-200 status code: {response.status_code}")
-    
-    data = response.json()
-    
-    if not data:
-      raise Exception("API returned empty data")
+    with request.urlopen(api_url, timeout=10) as response:
+      if response.status != 200:
+        raise Exception(f"API returned non-200 status code: {response.status_code}")
+      data = json.loads(response.read())
+
+      if not data:
+        raise Exception("API returned empty data")
     
     return data
   
-  except requests.exceptions.RequestException as e:
-    print(f"Network error: {e}")
-    return None
+  except error.HTTPError as e:
+        print(f"[API HTTP ERROR] {e.code} - {e.reason}")
+
+  except error.URLError as e:
+        print(f"[API URL ERROR] {e.reason}")
   except Exception as e:
     print(f"Error fetching data: {e}")
     return None
