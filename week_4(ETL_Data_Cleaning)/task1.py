@@ -128,7 +128,7 @@ df["score"] = pd.to_numeric(df["score"], errors="coerce")
 
 # 4. Remove invalid scores (<0)
 invalid_scores = (df["score"] < 0).sum()
-df = df[df["score"] >= 0 | df["score"].isna()]
+df = df[df["score"].isna() | (df["score"] >= 0)]
 
 # 5. Fill missing names
 missing_names = df["name"].isnull().sum()
@@ -137,7 +137,7 @@ df["name"] = df["name"].fillna("Unknown")
 
 # 6. Fill missing scores with average
 missing_scores = df["score"].isnull().sum()
-average_score = df["score"].mean()
+average_score = round(df["score"].mean(),2)
 df["score"] = df["score"].fillna(average_score)
 
 # 7. Remove duplicates
