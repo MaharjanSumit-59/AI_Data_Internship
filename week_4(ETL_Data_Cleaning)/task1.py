@@ -108,3 +108,76 @@ print(df)
 
 # Keep original row count
 before_rows = len(df)
+
+# STEP 3: CLEAN THE DATA
+
+print("\n===== CLEANING PROCESS =====")
+
+# Count issues before fixing
+null_count_before = df.isnull().sum().sum()
+duplicate_count_before = df.duplicated().sum()
+
+# 1. Remove extra spaces
+df["name"] = df["name"].astype(str).str.strip()
+
+# 2. Fix casing
+df["name"] = df["name"].str.title()
+
+# 3. Convert score to numeric
+df["score"] = pd.to_numeric(df["score"], errors="coerce")
+
+# 4. Remove invalid scores (<0)
+invalid_scores = (df["score"] < 0).sum()
+df = df[df["score"] >= 0 | df["score"].isna()]
+
+# 5. Fill missing names
+missing_names = df["name"].isnull().sum()
+df["name"] = df["name"].replace("None", np.nan)
+df["name"] = df["name"].fillna("Unknown")
+
+# 6. Fill missing scores with average
+missing_scores = df["score"].isnull().sum()
+average_score = df["score"].mean()
+df["score"] = df["score"].fillna(average_score)
+
+# 7. Remove duplicates
+df = df.drop_duplicates()
+
+# STEP 4: ADD GRADE COLUMN
+
+def get_grade(score):
+    if score >= 90:
+        return "A"
+    elif score >= 75:
+        return "B"
+    elif score >= 50:
+        return "C"
+    else:
+        return "F"
+
+df["grade"] = df["score"].apply(get_grade)
+
+# STEP 5: SAVE CLEANED FILE
+
+df.to_csv("clean_students.csv", index=False)
+
+after_rows = len(df)
+
+# BONUS: CLEANING REPORT
+
+
+print("\n===== CLEANING REPORT =====")
+
+print(f"Null values fixed: {null_count_before}")
+print(f"Duplicate rows removed: {duplicate_count_before}")
+print(f"Invalid negative scores removed: {invalid_scores}")
+print(f"Missing names fixed: {missing_names}")
+print(f"Missing scores fixed: {missing_scores}")
+
+print("\nRows before cleaning:", before_rows)
+print("Rows after cleaning:", after_rows)
+
+print("\n===== CLEANED DATA =====")
+print(df)
+
+print("\nCleaned CSV saved as clean_students.csv")
