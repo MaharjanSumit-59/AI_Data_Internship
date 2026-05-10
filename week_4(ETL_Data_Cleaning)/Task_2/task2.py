@@ -95,8 +95,7 @@ try:
     )
 
     cursor = conn.cursor()
-    # drop database
-    cursor.execute("DROP DATABASE IF EXISTS posts_db")
+    
 
     # create database
     cursor.execute("CREATE DATABASE IF NOT EXISTS posts_db")
@@ -115,21 +114,16 @@ try:
         )
     """)
     # Insert rows
-    for _, row in df.iterrows():
-        cursor.execute("""
-            INSERT INTO posts (userId, id, title, body, word_count)
-            VALUES (%s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-                title = VALUES(title),
-                body = VALUES(body),
-                word_count = VALUES(word_count)
-        """, (
-            int(row["userId"]),
-            int(row["id"]),
-            row["title"],
-            row["body"],
-            int(row["word_count"])
-        ))
+    data_tuples = list(df.itertuples(index=False, name=None))
+
+    cursor.executemany("""
+        INSERT INTO posts (userId, id, title, body, word_count)
+        VALUES (%s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+            title = VALUES(title),
+            body = VALUES(body),
+            word_count = VALUES(word_count)
+    """, data_tuples)
     conn.commit()
 
     print("Data loaded into MySQL successfully.")
