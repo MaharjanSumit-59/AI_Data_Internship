@@ -26,60 +26,66 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 1. EXTRACT -Fetch API Data
-user_url = os.getenv("API_URL")
-post_url = os.getenv("POSTS_API_URL")
+urls = {
+    "users": os.getenv("API_URL"),
+    "posts": os.getenv("POSTS_API_URL"),
+    "todos": os.getenv("TODOS_URL")
+}
 
-# Fetch Users
-try:
-    with request.urlopen(user_url) as response:
-        users_data = json.loads(response.read().decode())
+data = {}
 
-    print("USER data fetched successfully.")
+for key, url in urls.items():
+    try:
+        with request.urlopen(url) as response:
+            data[key] = json.loads(response.read().decode())
+        print(f"{key.upper()} data fetched successfully.")
 
-except error.URLError as e:
-    print(f"Error fetching data: {e}")
-    exit()
-    
-# Fetch Posts
-try:
-    with request.urlopen(post_url) as response:
-        posts_data = json.loads(response.read().decode())
+    except error.URLError as e:
+        print(f"Error fetching {key}: {e}")
+        exit()
 
-    print("POST data fetched successfully.")
-
-except error.URLError as e:
-    print(f"Error fetching data: {e}")
-    exit()
-
+# Assign data
+users_data = data["users"]
+posts_data = data["posts"]
+todos_data = data["todos"]
 
 # 2. CREATE DATAFRAMES
 # Normalize nested JSON (address.city)
 df_users = pd.json_normalize(users_data)
-
 # Keep required columns
 df_users = df_users[["id", "name", "email", "address.city"]]
-
 # Rename column
 df_users.rename(columns={"address.city": "city"}, inplace=True)
 
 # Create posts dataframe
 df_posts = pd.DataFrame(posts_data)
-
 # Keep required columns
 df_posts = df_posts[["userId", "title"]]
-
 # Rename userId -> id
 df_posts.rename(columns={"userId": "id"}, inplace=True)
+
+# BONUS: TODOS DATAFRAME
+df_todos = pd.DataFrame(todos_data)
+df_todos = df_todos[["userId", "completed"]]
+df_todos.rename(columns={"userId": "id"}, inplace=True)
 
 # 3. TRANSFORM
 # Merge users and posts
 merged_df = pd.merge(df_users, df_posts, on="id")
-
 # Count posts per user
 post_counts = merged_df.groupby("id").size().reset_index(name="post_count")
-
 # Merge post count into user dataframe
 df_users = pd.merge(df_users, post_counts, on="id")
+
+# BONUS: completion rate
+completion_rate = (
+    df_todos.groupby("id")["completed"]
+    .mean()
+    .reset_index(name="completion_rate")
+)
+
+completion_rate["completion_rate"] = (completion_rate["completion_rate"] * 100).round(2)
+df_users = pd.merge(df_users, completion_rate, on="id", how="left")
 
 
 # 4. CLEANING
@@ -96,10 +102,7 @@ df_users.to_csv("merged_data.csv", index=False)
 print("CSV file saved as merged_data.csv")
 
 # 6. LOAD TO MYSQL
-# 8. LOAD INTO MYSQL
-
 try:
-    # Connect to MySQL
     conn = mysql.connector.connect(
         host=os.getenv("DB_HOST"),
         user=os.getenv("DB_USER"),
@@ -108,43 +111,39 @@ try:
 
     cursor = conn.cursor()
 
-    # Create database
     cursor.execute("CREATE DATABASE IF NOT EXISTS users_db")
     print("\nDatabase created successfully!")
 
-    # Use database
     cursor.execute("USE users_db")
 
-    # Create table
+    # UPDATED TABLE (includes completion_rate)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users_posts (
             id INT PRIMARY KEY,
             name VARCHAR(255),
             email VARCHAR(255),
             city VARCHAR(255),
-            post_count INT
+            post_count INT,
+            completion_rate FLOAT
         )
     """)
 
-    # Convert dataframe rows to tuples
     data_tuples = list(df_users.itertuples(index=False, name=None))
 
-    # Insert rows
     cursor.executemany("""
-        INSERT INTO users_posts (id, name, email, city, post_count)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO users_posts
+        (id, name, email, city, post_count, completion_rate)
+        VALUES (%s, %s, %s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE
             name = VALUES(name),
             email = VALUES(email),
             city = VALUES(city),
-            post_count = VALUES(post_count)
+            post_count = VALUES(post_count),
+            completion_rate = VALUES(completion_rate)
     """, data_tuples)
 
-    # Commit changes
     conn.commit()
-
     print("Data loaded into MySQL successfully.")
-
 
 except mysql.connector.Error as err:
     print(f"MySQL Error: {err}")
@@ -155,14 +154,13 @@ finally:
 
     if 'conn' in locals() and conn.is_connected():
         conn.close()
-        
-        
-        
-# TOP 3 MOST ACTIVE USERS    
+
+
+# TOP 3 MOST ACTIVE USERS
 top_users = df_users.sort_values(
-        by="post_count",
-        ascending=False
-    ).head(3)   
+    by="post_count",
+    ascending=False
+).head(3)
 
 print("\nTop 3 Most Active Users:\n")
 print(top_users.to_string(index=False))
