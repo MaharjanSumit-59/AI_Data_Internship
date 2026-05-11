@@ -142,4 +142,73 @@ def extract(api_url):
     return []
 
 
+# TRANSFORM
+def transform(data):
 
+    print("\n========== TRANSFORM ==========")
+
+    df = pd.DataFrame(data)
+
+    print(f"[INFO] Initial rows: {len(df)}")
+
+    # SELECT REQUIRED COLUMNS    
+    columns = [
+        "id",
+        "title",
+        "category",
+        "price",
+        "discountPercentage",
+        "rating",
+        "stock",
+        "brand"
+    ]
+    df = df[columns]
+
+    
+    # HANDLE NULLS
+    df.dropna(inplace=True)
+    # REMOVE DUPLICATES
+    df.drop_duplicates(subset=["id"], inplace=True)
+    # CLEAN STRINGS
+    string_cols = ["title", "category", "brand"]
+    for col in string_cols:
+        df[col] = (
+            df[col]
+            .astype(str)
+            .str.strip()
+            .str.title()
+        )
+
+    # FIX DATA TYPES    
+    df["id"] = df["id"].astype(int)
+    df["price"] = df["price"].astype(float)
+    df["rating"] = df["rating"].astype(float)
+    df["stock"] = df["stock"].astype(int)
+
+    
+    # TRANSFORMATIONS
+    # 1. Final Price After Discount
+    df["final_price"] = (
+        df["price"]
+        - (df["price"] * df["discountPercentage"] / 100)
+    ).round(2)
+
+    # 2. Stock Status
+    df["stock_status"] = df["stock"].apply(
+        lambda x: "Low Stock" if x < 20 else "In Stock"
+    )
+
+    # 3. Rating Category
+    df["rating_category"] = df["rating"].apply(
+        lambda x:
+        "Excellent" if x >= 4.5 else
+        "Good" if x >= 4 else
+        "Average"
+    )
+
+    # 4. ETL Timestamp
+    df["etl_loaded_at"] = datetime.now()
+
+    print(f"[SUCCESS] Clean rows: {len(df)}")
+
+    return df
