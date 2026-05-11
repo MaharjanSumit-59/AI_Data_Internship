@@ -1,0 +1,16 @@
+id,title,category,price,discount_percentage,rating,stock,brand,final_price,stock_status,rating_category,etl_loaded_at
+1,Essence Mascara Lash Princess,Beauty,9.99,10.48,2.56,99,Essence,8.94,In Stock,Average,2026-05-11 21:57:41
+2,Eyeshadow Palette With Mirror,Beauty,19.99,18.19,2.86,34,Glamour Beauty,16.35,In Stock,Average,2026-05-11 21:57:41
+3,Powder Canister,Beauty,14.99,9.84,4.64,89,Velvet Touch,13.51,In Stock,Excellent,2026-05-11 21:57:41
+4,Red Lipstick,Beauty,12.99,12.16,4.36,91,Chic Cosmetics,11.41,In Stock,Good,2026-05-11 21:57:41
+5,Red Nail Polish,Beauty,8.99,11.44,4.32,79,Nail Couture,7.96,In Stock,Good,2026-05-11 21:57:41
+6,Calvin Klein Ck One,Fragrances,49.99,1.89,4.37,29,Calvin Klein,49.05,In Stock,Good,2026-05-11 21:57:41
+7,Chanel Coco Noir Eau De,Fragrances,129.99,16.51,4.26,58,Chanel,108.53,In Stock,Good,2026-05-11 21:57:41
+8,Dior J'Adore,Fragrances,89.99,14.72,3.8,98,Dior,76.74,In Stock,Average,2026-05-11 21:57:41
+9,Dolce Shine Eau De,Fragrances,69.99,0.62,3.96,4,Dolce & Gabbana,69.56,Low Stock,Average,2026-05-11 21:57:41
+10,Gucci Bloom Eau De,Fragrances,79.99,14.39,2.74,91,Gucci,68.48,In Stock,Average,2026-05-11 21:57:41
+11,Annibale Colombo Bed,Furniture,1899.99,8.57,4.77,88,Annibale Colombo,1737.16,In Stock,Excellent,2026-05-11 21:57:41
+12,Annibale Colombo Sofa,Furniture,2499.99,14.4,3.92,60,Annibale Colombo,2139.99,In Stock,Average,2026-05-11 21:57:41
+13,Bedside Table African Cherry,Furniture,299.99,19.09,2.87,64,Furniture Co.,242.72,In Stock,Average,2026-05-11 21:57:41
+14,Knoll Saarinen Executive Conference Chair,Furniture,499.99,2.01,4.88,26,Knoll,489.94,In Stock,Excellent,2026-05-11 21:57:41
+15,Wooden Bathroom Sink With Mirror,Furniture,799.99,8.8,3.59,7,Bath Trends,729.59,Low Stock,Average,2026-05-11 21:57:41

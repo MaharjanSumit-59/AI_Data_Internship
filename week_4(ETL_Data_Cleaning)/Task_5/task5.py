@@ -118,7 +118,14 @@ def extract(api_url):
 
         print("[INFO] Fetching API data...")
 
-        response = request.urlopen(api_url)
+        req = request.Request(
+            api_url,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+        
+        response = request.urlopen(req)
         data = json.loads(response.read().decode())
 
         products = data.get("products", [])
@@ -212,3 +219,164 @@ def transform(data):
     print(f"[SUCCESS] Clean rows: {len(df)}")
 
     return df
+
+# LOAD
+def load(df):
+
+    print("\n========== LOAD ==========")
+
+    try:
+        # CONNECT TO DATABASE
+       
+        conn = get_connection("products_db")
+        cursor = conn.cursor()
+
+        print("[DB] Connected to products_db")
+
+        # GET EXISTING IDS
+        cursor.execute(
+            "SELECT id FROM products"
+        )
+
+        existing_ids = set(
+            row[0]
+            for row in cursor.fetchall()
+        )
+
+       
+        # REMOVE DUPLICATE ROWS
+        new_df = df[
+            ~df["id"].isin(existing_ids)
+        ]
+
+        if len(new_df) == 0:
+
+            print(
+                "[INFO] No new rows to insert"
+            )
+
+        else:
+
+           
+            # INSERT QUERY
+            insert_query = """
+            INSERT INTO products (
+
+                id,
+                title,
+                category,
+                price,
+                discount_percentage,
+                rating,
+                stock,
+                brand,
+                final_price,
+                stock_status,
+                rating_category,
+                etl_loaded_at
+
+            )
+
+            VALUES (%s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s,
+                    %s, %s)
+            """
+
+           
+            # DATAFRAME -> LIST OF TUPLES
+            values = [
+
+                (
+                    int(row["id"]),
+                    row["title"],
+                    row["category"],
+                    float(row["price"]),
+                    float(row["discountPercentage"]),
+                    float(row["rating"]),
+                    int(row["stock"]),
+                    row["brand"],
+                    float(row["final_price"]),
+                    row["stock_status"],
+                    row["rating_category"],
+                    row["etl_loaded_at"]
+                )
+
+                for _, row in new_df.iterrows()
+            ]
+
+           
+            # INSERT DATA
+            cursor.executemany(
+                insert_query,
+                values
+            )
+
+            conn.commit()
+
+            print(
+                f"[SUCCESS] Inserted {len(new_df)} rows"
+            )
+
+       
+        # EXPORT CSV
+        full_df = pd.read_sql(
+            "SELECT * FROM products",
+            conn
+        )
+
+        full_df.to_csv(
+            CSV_FILE,
+            index=False
+        )
+
+        print(
+            f"[SUCCESS] CSV Exported -> {CSV_FILE}"
+        )
+
+    except mysql.connector.Error as e:
+
+        print(f"[MYSQL ERROR] {e}")
+
+    except Exception as e:
+
+        print(f"[ERROR] {e}")
+
+    finally:
+        cursor.close()
+        conn.close()
+        print("[DB] Connection Closed")
+
+
+# MAIN PIPELINE
+def run_pipeline():
+
+    print("\n" + "=" * 50)
+    print("RUNNING FULL ETL PIPELINE")
+    print("=" * 50)
+
+    # CREATE DATABASE + TABLE
+    create_database_table()
+
+    # EXTRACT
+    raw_data = extract(API_URL)
+
+    if not raw_data:
+        print("[PIPELINE] Extraction failed")
+        return
+
+    # TRANSFORM
+    clean_df = transform(raw_data)
+
+    # LOAD
+    load(clean_df)
+
+    print(
+        "\n[PIPELINE] ETL COMPLETED SUCCESSFULLY"
+    )
+
+
+# RUN PIPELINE TWICE
+if __name__ == "__main__":
+
+    print("\nFIRST RUN")
+    run_pipeline()
