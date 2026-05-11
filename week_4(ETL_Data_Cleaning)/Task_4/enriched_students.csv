@@ -1,0 +1,11 @@
+name,score,grade,passed,score_category,rank,subject
+Bob,92.0,A,True,High,1,Science
+Leo,91.0,A,True,High,2,English
+Grace,88.0,B,True,High,3,Physics
+Alice,85.0,B,True,High,4,Math
+Nora,81.0,B,True,High,5,Physics
+Isabella,73.0,C,True,Medium,6,Math
+Frank,65.0,C,True,Medium,7,Computer
+Mia,58.0,D,True,Medium,8,Computer
+Charlie,48.0,F,False,Low,9,English
+Jack,44.0,F,False,Low,10,Science
