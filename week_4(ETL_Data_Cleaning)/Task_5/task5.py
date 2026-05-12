@@ -29,7 +29,29 @@ import pandas as pd
 import mysql.connector
 from dotenv import load_dotenv
 from datetime import datetime
+import logging
 
+
+# LOGGING CONFIGURATION
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    filename="etl_pipeline.log",   # save logs in file
+    filemode="a"                   # append mode
+)
+
+# Optional: also show logs in terminal
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+
+formatter = logging.Formatter(
+    "%(asctime)s - %(levelname)s - %(message)s"
+)
+
+console.setFormatter(formatter)
+
+logging.getLogger().addHandler(console)
 
 
 # LOAD ENV VARIABLES
@@ -53,6 +75,7 @@ def get_connection(db=None):
 # CREATE DATABASE + TABLE
 def create_database_table():
 
+    logging.info("========== DATABASE SETUP ==========")
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -63,7 +86,7 @@ def create_database_table():
             "CREATE DATABASE IF NOT EXISTS products_db"
         )
 
-        print("[DB] Database ensured: products_db")
+        logging.info("Database ensured: products_db")
 
         cursor.close()
         conn.close()
@@ -74,9 +97,8 @@ def create_database_table():
 
     except Exception as e:
 
-        print(f"[DB ERROR] Database creation failed: {e}")
+        logging.error(f"Database creation failed: {e}")
 
-    
     # CREATE TABLE
     try:
 
@@ -98,11 +120,12 @@ def create_database_table():
         )
         """)
 
-        print("[DB] Table ensured: products")
+        logging.info("Table ensured: products")
 
     except Exception as e:
 
-        print(f"[DB ERROR] Table creation failed: {e}")
+        logging.error(f"Table creation failed: {e}")
+
 
     finally:
 
@@ -113,10 +136,10 @@ def create_database_table():
 
 # EXTRACT
 def extract(api_url):
-    print("\n========== EXTRACT ==========")
+    logging.info("========== EXTRACT PHASE ==========")
     try:
 
-        print("[INFO] Fetching API data...")
+        logging.info("Fetching API data...")
 
         req = request.Request(
             api_url,
@@ -130,21 +153,26 @@ def extract(api_url):
 
         products = data.get("products", [])
 
-        print(f"[SUCCESS] Extracted {len(products)} rows")
-
+        logging.info(f"Successfully extracted {len(products)} rows")
         return products
 
     except error.HTTPError as e:
 
-        print(f"[HTTP ERROR] {e.code}")
+        logging.error(
+            f"HTTP ERROR: {e.code}"
+        )
 
     except error.URLError as e:
 
-        print(f"[URL ERROR] {e.reason}")
+        logging.error(
+            f"URL ERROR: {e.reason}"
+        )
 
     except Exception as e:
 
-        print(f"[ERROR] {e}")
+        logging.error(
+            f"Unexpected ERROR: {e}"
+        )
 
     return []
 
@@ -152,11 +180,15 @@ def extract(api_url):
 # TRANSFORM
 def transform(data):
 
-    print("\n========== TRANSFORM ==========")
+    logging.info(
+        "========== TRANSFORM PHASE =========="
+    )
 
     df = pd.DataFrame(data)
 
-    print(f"[INFO] Initial rows: {len(df)}")
+    logging.info(
+        f"Initial rows: {len(df)}"
+    )
 
     # SELECT REQUIRED COLUMNS    
     columns = [
@@ -173,9 +205,17 @@ def transform(data):
 
     
     # HANDLE NULLS
+    before_null = len(df)
     df.dropna(inplace=True)
+    logging.info(
+        f"Removed {before_null - len(df)} rows with null values"
+    )
     # REMOVE DUPLICATES
+    before_dup = len(df)
     df.drop_duplicates(subset=["id"], inplace=True)
+    logging.info(
+        f"Removed {before_dup - len(df)} duplicate rows"
+    )
     # CLEAN STRINGS
     string_cols = ["title", "category", "brand"]
     for col in string_cols:
@@ -185,13 +225,18 @@ def transform(data):
             .str.strip()
             .str.title()
         )
+    logging.info(
+        "String cleaning completed"
+    )
 
     # FIX DATA TYPES    
     df["id"] = df["id"].astype(int)
     df["price"] = df["price"].astype(float)
     df["rating"] = df["rating"].astype(float)
     df["stock"] = df["stock"].astype(int)
-
+    logging.info(
+        "Data type conversion completed"
+    )
     
     # TRANSFORMATIONS
     # 1. Final Price After Discount
@@ -216,14 +261,22 @@ def transform(data):
     # 4. ETL Timestamp
     df["etl_loaded_at"] = datetime.now()
 
-    print(f"[SUCCESS] Clean rows: {len(df)}")
+    logging.info(
+        "Calculated columns added successfully"
+    )
+
+    logging.info(
+        f"Final clean rows: {len(df)}"
+    )
 
     return df
 
 # LOAD
 def load(df):
 
-    print("\n========== LOAD ==========")
+    logging.info(
+        "========== LOAD PHASE =========="
+    )
 
     try:
         # CONNECT TO DATABASE
@@ -231,7 +284,9 @@ def load(df):
         conn = get_connection("products_db")
         cursor = conn.cursor()
 
-        print("[DB] Connected to products_db")
+        logging.info(
+            "Connected to products_db"
+        )
 
         # GET EXISTING IDS
         cursor.execute(
@@ -251,8 +306,8 @@ def load(df):
 
         if len(new_df) == 0:
 
-            print(
-                "[INFO] No new rows to insert"
+            logging.warning(
+                "No new rows to insert"
             )
 
         else:
@@ -313,8 +368,8 @@ def load(df):
 
             conn.commit()
 
-            print(
-                f"[SUCCESS] Inserted {len(new_df)} rows"
+            logging.info(
+                f"Inserted {len(new_df)} rows into database"
             )
 
        
@@ -329,31 +384,36 @@ def load(df):
             index=False
         )
 
-        print(
-            f"[SUCCESS] CSV Exported -> {CSV_FILE}"
+        logging.info(
+            f"CSV Exported -> {CSV_FILE}"
         )
+
 
     except mysql.connector.Error as e:
 
-        print(f"[MYSQL ERROR] {e}")
-
+        logging.error(
+            f"MySQL ERROR: {e}"
+        )
     except Exception as e:
 
-        print(f"[ERROR] {e}")
-
+        logging.error(
+            f"Unexpected ERROR: {e}"
+        )
     finally:
         cursor.close()
         conn.close()
-        print("[DB] Connection Closed")
-
+        logging.info(
+            "Database connection closed"
+        )
 
 # MAIN PIPELINE
 def run_pipeline():
 
-    print("\n" + "=" * 50)
-    print("RUNNING FULL ETL PIPELINE")
-    print("=" * 50)
-
+    logging.info("=" * 50)
+    logging.info(
+        "RUNNING FULL ETL PIPELINE"
+    )
+    logging.info("=" * 50)
     # CREATE DATABASE + TABLE
     create_database_table()
 
@@ -361,7 +421,9 @@ def run_pipeline():
     raw_data = extract(API_URL)
 
     if not raw_data:
-        print("[PIPELINE] Extraction failed")
+        logging.error(
+            "Pipeline stopped: Extraction failed"
+        )
         return
 
     # TRANSFORM
@@ -370,13 +432,13 @@ def run_pipeline():
     # LOAD
     load(clean_df)
 
-    print(
-        "\n[PIPELINE] ETL COMPLETED SUCCESSFULLY"
+    logging.info(
+        "ETL COMPLETED SUCCESSFULLY"
     )
 
 
 # RUN PIPELINE TWICE
 if __name__ == "__main__":
 
-    print("\nFIRST RUN")
+    logging.info("FIRST RUN")
     run_pipeline()

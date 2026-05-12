@@ -1,0 +1,24 @@
+2026-05-12 21:42:22,043 - INFO - FIRST RUN
+2026-05-12 21:42:22,043 - INFO - ==================================================
+2026-05-12 21:42:22,043 - INFO - RUNNING FULL ETL PIPELINE
+2026-05-12 21:42:22,043 - INFO - ==================================================
+2026-05-12 21:42:22,043 - INFO - ========== DATABASE SETUP ==========
+2026-05-12 21:42:22,236 - INFO - Database ensured: products_db
+2026-05-12 21:42:22,276 - INFO - Table ensured: products
+2026-05-12 21:42:22,276 - INFO - ========== EXTRACT PHASE ==========
+2026-05-12 21:42:22,276 - INFO - Fetching API data...
+2026-05-12 21:42:22,494 - INFO - Successfully extracted 30 rows
+2026-05-12 21:42:22,494 - INFO - ========== TRANSFORM PHASE ==========
+2026-05-12 21:42:22,497 - INFO - Initial rows: 30
+2026-05-12 21:42:22,504 - INFO - Removed 15 rows with null values
+2026-05-12 21:42:22,506 - INFO - Removed 0 duplicate rows
+2026-05-12 21:42:22,507 - INFO - String cleaning completed
+2026-05-12 21:42:22,508 - INFO - Data type conversion completed
+2026-05-12 21:42:22,510 - INFO - Calculated columns added successfully
+2026-05-12 21:42:22,510 - INFO - Final clean rows: 15
+2026-05-12 21:42:22,510 - INFO - ========== LOAD PHASE ==========
+2026-05-12 21:42:22,517 - INFO - Connected to products_db
+2026-05-12 21:42:22,537 - WARNING - No new rows to insert
+2026-05-12 21:42:22,555 - INFO - CSV Exported -> clean_products.csv
+2026-05-12 21:42:22,556 - INFO - Database connection closed
+2026-05-12 21:42:22,556 - INFO - ETL COMPLETED SUCCESSFULLY
