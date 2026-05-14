@@ -1,0 +1,11 @@
+Metric,Value
+Initial Row Count,100
+Final Row Count,100
+Total Issues Detected (Before Cleaning),2
+Total Issues Fixed (After Cleaning),100
+Null Values Detected (Total),0
+Duplicate Rows Detected,0
+Type Mismatches Detected (Total),2
+Out-of-Range Values Detected (Total),0
+Inconsistent String Formats Detected (Total),0
+Titles Adjusted to Title Case,100
