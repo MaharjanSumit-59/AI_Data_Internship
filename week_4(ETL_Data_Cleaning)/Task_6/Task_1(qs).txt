@@ -1,0 +1,10 @@
+Task 1: Build a Fault-Tolerant Multi-Source ETL Pipeline with Conflict Resolution
+You are given two data sources — a live public API (/users and /posts from JSONPlaceholder) and a locally generated messy CSV file.
+Your task is to:
+1. Extract data from both sources simultaneously using proper error handling (timeouts, retries, HTTP error codes)
+2. Normalize nested JSON fields (e.g., address.city) using pd.json_normalize()
+3. Merge the two DataFrames on a shared key, but handle conflicts — what happens when the same email appears
+ in both sources with different name values? Write logic to decide which one wins and document your decision
+4. After merging, apply all 6 cleaning techniques (nulls, duplicates, casing, types, whitespace, outliers)
+5. Load the final unified dataset to both MySQL and CSV
+On a second run of your script, no duplicate rows should be inserted into MySQL
