@@ -1,14 +1,22 @@
-2026-05-16 17:30:39,600 - INFO - ETL Pipeline Started
-2026-05-16 17:30:39,600 - INFO - Starting extraction process
-2026-05-16 17:30:41,152 - INFO - Extraction completed successfully. Rows extracted: 240
-2026-05-16 17:30:41,154 - INFO - Cleaning started. Input rows: 240
-2026-05-16 17:30:41,185 - INFO - Cleaning completed. Output rows: 240
-2026-05-16 17:30:41,185 - INFO - Transformation started. Input rows: 240
-2026-05-16 17:30:41,192 - INFO - Feature engineering completed
-2026-05-16 17:30:41,211 - INFO - Summary table generated
-2026-05-16 17:30:41,211 - INFO - Transformation completed. Output rows: 240
-2026-05-16 17:30:41,215 - INFO - Loading started. Input rows: 240
-2026-05-16 17:30:41,226 - INFO - CSV saved successfully: tvmaze_cleaned.csv
-2026-05-16 17:30:41,506 - INFO - MySQL loading completed. Rows inserted: 240
-2026-05-16 17:30:41,507 - INFO - MySQL connection closed
-2026-05-16 17:30:41,508 - INFO - ETL Pipeline Completed
+2026-05-17 16:56:03,551 - INFO - Starting extraction process
+2026-05-17 16:56:05,207 - INFO - Extraction completed successfully. Rows extracted: 240
+2026-05-17 16:56:05,240 - INFO - Cleaning started. Input rows: 240
+2026-05-17 16:56:05,254 - INFO - Cleaning completed. Output rows: 240
+2026-05-17 16:56:05,324 - INFO - Transformation started. Input rows: 240
+2026-05-17 16:56:05,332 - INFO - Feature engineering completed
+2026-05-17 16:56:05,339 - INFO - Summary table generated
+2026-05-17 16:56:05,339 - INFO - Transformation completed. Output rows: 240
+2026-05-17 16:56:05,422 - INFO - ETL Pipeline Started
+2026-05-17 16:56:05,422 - INFO - Starting extraction process
+2026-05-17 16:56:06,913 - INFO - Extraction completed successfully. Rows extracted: 240
+2026-05-17 16:56:06,914 - INFO - Cleaning started. Input rows: 240
+2026-05-17 16:56:06,920 - INFO - Cleaning completed. Output rows: 240
+2026-05-17 16:56:06,920 - INFO - Transformation started. Input rows: 240
+2026-05-17 16:56:06,924 - INFO - Feature engineering completed
+2026-05-17 16:56:06,928 - INFO - Summary table generated
+2026-05-17 16:56:06,928 - INFO - Transformation completed. Output rows: 240
+2026-05-17 16:56:06,929 - INFO - Loading started. Input rows: 240
+2026-05-17 16:56:06,939 - INFO - CSV saved successfully: tvmaze_cleaned.csv
+2026-05-17 16:56:07,251 - INFO - MySQL loading completed. Rows inserted: 0
+2026-05-17 16:56:07,252 - INFO - MySQL connection closed
+2026-05-17 16:56:07,252 - INFO - ETL Pipeline Completed
